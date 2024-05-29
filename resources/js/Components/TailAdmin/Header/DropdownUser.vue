@@ -1,6 +1,6 @@
 <script setup>
 import { onClickOutside } from '@vueuse/core'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3';
 import Confirmation from '@/Helpers/Confirmation';
 
@@ -10,6 +10,10 @@ const page = usePage();
 
 onClickOutside(target, () => {
   dropdownOpen.value = false
+})
+
+const user = computed(() => {
+  return page.props.auth.user || {};
 })
 
 const handleLogout = () => {
@@ -35,12 +39,12 @@ const handleLogout = () => {
       @click.prevent="dropdownOpen = !dropdownOpen"
     >
       <span class="hidden text-right lg:block">
-        <span class="block text-sm font-medium text-black dark:text-white">Thomas Anree</span>
-        <span class="block text-xs font-medium">UX Designer</span>
+        <span class="block text-sm font-medium text-black capitalize dark:text-white">{{ user.name }}</span>
+        <span class="block text-xs font-medium capitalize">{{ user.role }}</span>
       </span>
 
       <span class="w-12 h-12 rounded-full">
-        <img :src="page.props.auth.user.profile_photo_url" alt="User" class="round" />
+        <img :src="user.profile_photo_url" alt="User" class="round" />
         <!-- <img src="@/assets/images/user/user-01.png" alt="User" /> -->
       </span>
 

@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 
-const { label, placeholder, modelValue } = defineProps(['label', 'options', 'modelValue']);
+const { label, placeholder, modelValue, disabled } = defineProps(['label', 'options', 'modelValue', 'disabled']);
 const emits = defineEmits(['update:modelValue']);
 </script>
 
@@ -14,6 +14,7 @@ const emits = defineEmits(['update:modelValue']);
         :value="modelValue"
         class="relative z-20 w-full px-5 py-3 transition bg-transparent border rounded outline-none appearance-none border-stroke focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
         @change="(e) => emits('update:modelValue', e.target.value)"
+        :disabled="disabled"
       >
       <slot></slot>
       </select>

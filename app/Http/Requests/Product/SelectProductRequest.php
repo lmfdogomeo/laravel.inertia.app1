@@ -12,7 +12,7 @@ class SelectProductRequest extends BaseRequest
      */
     public function authorize(): bool
     {
-        return isAdminUser();
+        return isAdminUser() || isMerchantUser();
     }
 
     /**

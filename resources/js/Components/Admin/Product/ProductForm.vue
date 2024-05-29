@@ -13,9 +13,12 @@ import UnitDropdown from "@/Components/Admin/UnitDropdown.vue"
 import Notification from "@/Helpers/Notification";
 import Confirmation from "@/Helpers/Confirmation";
 import DangerButton from "@/Components/DangerButton.vue";
+import { useSessionStore } from "@/stores/session";
 
+const { canAdd, canDelete, canView, canEdit, role } = useSessionStore();
 const page = usePage();
 const emptyForm = useForm({});
+const merchantOptions = ref([]);
 const form = useForm({
   uuid: "",
   sku: "",
@@ -91,6 +94,17 @@ const handleSubmitForm = () => {
     },
     onError: (error) => {
       console.log("onError", error);
+
+      if (error.merchant_id) {
+        console.log('error-merchant', error.merchant_id)
+
+        Notification.fire({
+          type: 'error',
+          title: "[Error]",
+          message: error.merchant_id,
+          duration: 5000,
+        });
+      }
     },
   });
 }
@@ -131,6 +145,20 @@ const onDeleteProduct = () => {
   });
 };
 
+const fetchMerchants = async() => {
+  try {
+    const {data, status} = await axios.get(route('api.merchant.list'));
+    console.log('data', data)
+    console.log('status', status)
+    if ([200,201].includes(status)) {
+      merchantOptions.value = data?.data || [];
+    }
+  } catch (error) {
+    console.log('error', error?.response?.data?.message || error)
+  }
+}
+
+
 const hasMerchant = computed(() => {
   return page.props?.merchant_uuid || null;
 })
@@ -161,6 +189,8 @@ onMounted(() => {
       form['merchant_id'] = productData[key].uuid || null;
     }
   }
+
+  fetchMerchants();
 })
 
 </script>
@@ -174,16 +204,16 @@ onMounted(() => {
           <div class="p-6.5">
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div class="">
-                <DragInDropFile :onChange="(e) => handleFileChange(e, 0)" />
+                <DragInDropFile :onChange="(e) => handleFileChange(e, 0)" :disabled="!canEdit('product') && !canAdd('product')"/>
               </div>
               <div class="">
-                <DragInDropFile :onChange="(e) => handleFileChange(e, 1)" />
+                <DragInDropFile :onChange="(e) => handleFileChange(e, 1)" :disabled="!canEdit('product') && !canAdd('product')"/>
               </div>
               <div class="">
-                <DragInDropFile :onChange="(e) => handleFileChange(e, 2)" />
+                <DragInDropFile :onChange="(e) => handleFileChange(e, 2)" :disabled="!canEdit('product') && !canAdd('product')"/>
               </div>
               <div class="">
-                <DragInDropFile :onChange="(e) => handleFileChange(e, 3)" />
+                <DragInDropFile :onChange="(e) => handleFileChange(e, 3)" :disabled="!canEdit('product') && !canAdd('product')"/>
               </div>
             </div>
           </div>
@@ -200,6 +230,7 @@ onMounted(() => {
                 placeholder="L * W * H, Inches"
                 customClasses="w-full xl:w-1/2"
                 v-model="form.size"
+                :disabled="!canEdit('product') && !canAdd('product')"
               >
                 <template v-slot:error>
                   <InputError :message="form.errors.size" />
@@ -212,7 +243,8 @@ onMounted(() => {
                 placeholder="kg"
                 customClasses="w-full xl:w-1/2"
                 v-model="form.weight"
-                >
+                :disabled="!canEdit('product') && !canAdd('product')"
+              >
                 <template v-slot:error>
                   <InputError :message="form.errors.weight" />
                 </template>
@@ -228,6 +260,7 @@ onMounted(() => {
                 placeholder="Description here..."
                 class="w-full rounded border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                 v-model="form.product_description"
+                :disabled="!canEdit('product') && !canAdd('product')"
               ></textarea>
 
               <InputError :message="form.errors.product_description" />
@@ -249,6 +282,7 @@ onMounted(() => {
               customClasses="mb-4.5"
               required
               v-model="form.product_name"
+              :disabled="!canEdit('product') && !canAdd('product')"
             >
               <template v-slot:error>
                 <InputError :message="form.errors.product_name" />
@@ -262,6 +296,7 @@ onMounted(() => {
                 placeholder="Brand Name"
                 customClasses="w-full xl:w-1/2"
                 v-model="form.brand_name"
+                :disabled="!canEdit('product') && !canAdd('product')"
               >
                 <template v-slot:error>
                   <InputError :message="form.errors.brand_name" />
@@ -279,7 +314,7 @@ onMounted(() => {
                 </template>
               </SelectGroup> -->
 
-              <CategoryDropdown v-model="form.category_id">
+              <CategoryDropdown v-model="form.category_id" :disabled="!canEdit('product') && !canAdd('product')">
                 <template v-slot:error>
                   <InputError :message="form.errors.category_id" />
                 </template>
@@ -293,6 +328,7 @@ onMounted(() => {
                 placeholder="0.00"
                 customClasses="w-full xl:w-1/2"
                 v-model="form.price"
+                :disabled="!canEdit('product') && !canAdd('product')"
               >
                 <template v-slot:error>
                   <InputError :message="form.errors.price" />
@@ -305,6 +341,7 @@ onMounted(() => {
                 placeholder="0.00"
                 customClasses="w-full xl:w-1/2"
                 v-model="form.sale_price"
+                :disabled="!canEdit('product') && !canAdd('product')"
               >
                 <template v-slot:error>
                   <InputError :message="form.errors.sale_price" />
@@ -319,6 +356,7 @@ onMounted(() => {
               customClasses="mb-4.5"
               v-model="form.sku"
               inputClass="uppercase"
+              :disabled="!canEdit('product') && !canAdd('product')"
             >
               <template v-slot:error>
                 <InputError :message="form.errors.sku" />
@@ -327,7 +365,7 @@ onMounted(() => {
 
             <div class="mb-4.5 flex flex-col gap-6 xl:flex-row">
               
-              <StockStatusDropdown label="Stock Status" v-model="form.stock_status">
+              <StockStatusDropdown label="Stock Status" v-model="form.stock_status" :disabled="!canEdit('product') && !canAdd('product')">
                 <template v-slot:error>
                   <InputError :message="form.errors.stock_status" />
                 </template>
@@ -339,13 +377,14 @@ onMounted(() => {
                 placeholder="0"
                 customClasses="w-full xl:w-1/2"
                 v-model="form.stock_quantity"
+                :disabled="!canEdit('product') && !canAdd('product')"
               >
                 <template v-slot:error>
                   <InputError :message="form.errors.stock_quantity" />
                 </template>
               </InputGroup>
 
-              <UnitDropdown label="Unit" v-model="form.unit">
+              <UnitDropdown label="Unit" v-model="form.unit" :disabled="!canEdit('product') && !canAdd('product')">
                 <template v-slot:error>
                   <InputError :message="form.errors.unit" />
                 </template>
@@ -355,10 +394,25 @@ onMounted(() => {
         </DefaultCard>
         <!-- Contact Form End -->
 
+        <DefaultCard cardTitle="Merchant Selection" v-if="!hasMerchant && role === 'admin'">
+          <div class="p-6.5">
+            <SelectGroup label="Merchant" class="w-full" v-model="form.merchant_id">
+              <option value="" disabled selected>Select Merchant</option>
+              <option :value="item.uuid" v-for="(item, key) in merchantOptions" :key="key">
+                {{ item.company_name }}
+              </option>
+
+              <template v-slot:error>
+                <InputError :message="form.errors.merchant_id" />
+              </template>
+            </SelectGroup>
+          </div>
+        </DefaultCard>
+
         <div class="flex justify-end gap-2 mt-5">
           <DangerButton type="button" class="rounded-3xl"
             @click="handleDelete"
-            v-if="isUpdate"
+            v-if="isUpdate && canDelete('product')"
           >
             Delete
           </DangerButton>
@@ -366,6 +420,7 @@ onMounted(() => {
           <button
             type="submit"
             class="flex justify-center w-full p-3 font-medium rounded-3xl bg-primary text-gray hover:bg-opacity-90"
+            v-if="canEdit('product') || canAdd('product')"
           >
             {{ isUpdate ? "Update Product" : "Save Product" }}
           </button>
@@ -373,10 +428,12 @@ onMounted(() => {
 
         <button
           type="button"
-          class="flex justify-center w-full p-3 font-medium border rounded-3xl border-danger text-danger hover:bg-opacity-90"
+          class="flex items-center justify-center w-full gap-3 p-3 font-medium border rounded-3xl border-danger text-danger hover:bg-opacity-90"
           @click="handleBack"
         >
-          Cancel
+          <!-- Cancel -->
+          <i class="fas fa-arrow-left"></i>
+          {{ !canEdit('product') && !canAdd('product') ? 'Back' : 'Cancel' }}
         </button>
       </div>
     </div>

@@ -14,12 +14,14 @@ import Notification from "@/Helpers/Notification";
 import Confirmation from "@/Helpers/Confirmation";
 import DangerButton from "@/Components/DangerButton.vue";
 import axios from "axios";
+import { useSessionStore } from "@/stores/session";
 
 const page = usePage();
 const profile = ref(null);
 
 const search = ref("");
 
+const { role } = useSessionStore();
 const foundMerchant = ref(null);
 const merchantForm = useForm({
   address: "",
@@ -31,6 +33,7 @@ const merchantForm = useForm({
   postal_code: "",
   uuid: "",
 });
+const emptyForm = useForm({});
 const form = useForm({
   name: "",
   email: "",
@@ -74,9 +77,6 @@ const handleSearch = async () => {
 };
 
 const handleSubmitForm = () => {
-  form.price = Number(form.price || "0").toFixed(2);
-  form.sale_price = Number(form.sale_price || "0").toFixed(2);
-
   let endpoint = route("admin.accounts.store");
   let method = "post";
   if (isUpdate.value) {
@@ -131,21 +131,20 @@ const handleDelete = () => {
   Confirmation.confirm({
     title: "Confirmation",
     type: "warning",
-    text: "Are you sure you want to delete this product?",
+    text: "Are you sure you want to delete this account?",
     cancelButtonText: "Cancel",
     confirmButtonText: "Continue",
   }).then((result) => {
     if (result.isConfirm) {
-      onDeleteProduct();
+      onDeleteAccount();
     }
   });
 };
 
-const onDeleteProduct = () => {
+const onDeleteAccount = () => {
   emptyForm.delete(
-    route("admin.products.destroy", {
-      product: uuid.value,
-      ...(hasMerchant.value ? { merchant: hasMerchant.value } : {}),
+    route("admin.accounts.destroy", {
+      account: uuid.value,
     }),
     {
       preserveScroll: true,
@@ -154,7 +153,7 @@ const onDeleteProduct = () => {
           title: "Success",
           message:
             response.props.flash.message ||
-            "Product has been successfully deleted",
+            "Account has been successfully deleted",
           duration: 5000,
         });
       },
@@ -165,34 +164,31 @@ const onDeleteProduct = () => {
   );
 };
 
-const hasMerchant = computed(() => {
-  return page.props?.merchant_uuid || null;
-});
-
 const isUpdate = computed(() => page.props.state === "update");
 const uuid = computed(() => page.props.data?.uuid || null);
+const propsData = computed(() => page.props.data || {});
 
 onMounted(() => {
-  form.merchant_id = hasMerchant.value || null;
+  if (isUpdate.value) {
+    console.log("propsData", propsData.value);
+    merchantForm.company_tax_id =
+      propsData.value?.merchant_user?.merchant?.company_tax_id;
+    merchantForm.company_name =
+      propsData.value?.merchant_user?.merchant?.company_name;
+    merchantForm.contact_number =
+      propsData.value?.merchant_user?.merchant?.contact_number;
+    merchantForm.address = propsData.value?.merchant_user?.merchant?.address;
+    merchantForm.country = propsData.value?.merchant_user?.merchant?.country;
+    merchantForm.city = propsData.value?.merchant_user?.merchant?.city;
+    merchantForm.postal_code =
+      propsData.value?.merchant_user?.merchant?.postal_code;
+    merchantForm.uuid = propsData.value?.merchant_user?.merchant?.uuid;
 
-  console.log("app", page.props);
+    form.name = propsData.value?.name || "";
+    form.email = propsData.value?.email || "";
+    form.merchant_id = propsData.value?.merchant_user?.merchant?.uuid || "";
 
-  const productData = page.props?.data || {};
-
-  for (let key in productData) {
-    if (typeof form[key] !== "undefined") {
-      if (
-        ["sale_price", "price", "stock_quantity", "sold_quantity"].includes(key)
-      ) {
-        form[key] = productData[key].toString();
-      } else {
-        form[key] = productData[key];
-      }
-    } else if (key === "category") {
-      form["category_id"] = productData[key].uuid || null;
-    } else if (key === "merchant") {
-      form["merchant_id"] = productData[key].uuid || null;
-    }
+    foundMerchant.value = true;
   }
 });
 </script>
@@ -301,7 +297,10 @@ onMounted(() => {
 
       <div class="flex flex-col gap-2 sm:col-span-7">
         <!-- Contact Form Start -->
-        <DefaultCard cardTitle="Merchant Details">
+        <DefaultCard
+          cardTitle="Merchant Details"
+          v-if="propsData.role !== 'admin'"
+        >
           <div class="p-6.5">
             <InputGroup
               label="Company ID"
@@ -380,6 +379,15 @@ onMounted(() => {
         <!-- Contact Form End -->
 
         <div class="flex justify-end gap-2 mt-5">
+          <button
+            type="button"
+            class="flex justify-center w-full p-3 font-medium border rounded-3xl border-danger text-danger hover:bg-opacity-90"
+            @click="() => router.get(route('admin.accounts.index'))"
+            v-if="isUpdate"
+          >
+            Back
+          </button>
+
           <DangerButton
             type="button"
             class="rounded-3xl"
@@ -401,6 +409,7 @@ onMounted(() => {
           type="button"
           class="flex justify-center w-full p-3 font-medium border rounded-3xl border-danger text-danger hover:bg-opacity-90"
           @click="handleCancel"
+          v-if="!isUpdate"
         >
           Cancel
         </button>

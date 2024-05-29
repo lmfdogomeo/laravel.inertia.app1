@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { Link, router, useForm, usePage } from "@inertiajs/vue3";
 
 import PaginationLink from "@/Components/PaginationLink.vue";
@@ -10,6 +10,7 @@ import Notification from "@/Helpers/Notification";
 
 const page = usePage();
 const emptyForm = useForm({});
+const search = ref("");
 
 const handleShowAccount = (data) => {
   router.get(
@@ -18,6 +19,10 @@ const handleShowAccount = (data) => {
     })
   );
 };
+
+const handleSearch = () => {
+  emptyForm.get(route('admin.accounts.index', { search: search.value }))
+}
 
 const handleDelete = (data) => {
   Confirmation.confirm({
@@ -79,7 +84,7 @@ const currentAccount = computed(() => page.props.auth.user);
         class="field-input !pr-[60px]"
         type="search"
         placeholder="Search Accounts"
-        value=""
+        v-model="search"
       />
       <button
         class="field-btn text-red !right-[40px] transition opacity-0"
@@ -87,7 +92,7 @@ const currentAccount = computed(() => page.props.auth.user);
       >
         <i class="fas fa-close"></i>
       </button>
-      <button class="field-btn icon" aria-label="Search">
+      <button class="field-btn icon" aria-label="Search" @click="handleSearch">
         <i class="fas fa-search"></i>
       </button>
     </div>

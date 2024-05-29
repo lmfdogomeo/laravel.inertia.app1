@@ -1,10 +1,11 @@
 <script setup>
-const { onChange } = defineProps({
-  onChange: Function
+const { onChange, disabled } = defineProps({
+  onChange: Function,
+  disabled: [String, Boolean, null]
 })
 
 const handleFileChange = (e) => {
-  if (typeof onChange === 'function') {
+  if (typeof onChange === 'function' && !disabled) {
     onChange(e.target.files);
   }
 }
@@ -14,13 +15,16 @@ const handleFileChange = (e) => {
   <div
     id="FileUpload"
     class="relative block cursor-pointer appearance-none rounded border border-dashed border-[#E2E1E1] bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5"
+    :class="{'!cursor-not-allowed': disabled}"
   >
     <input
       type="file"
       accept="image/*"
       class="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer"
+      :class="{'!cursor-not-allowed': disabled}"
       @change="handleFileChange"
       multiple
+      :disabled="disabled"
     />
     <div class="flex flex-col items-center justify-center space-y-3">
       <span

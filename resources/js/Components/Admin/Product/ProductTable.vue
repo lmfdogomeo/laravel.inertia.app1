@@ -10,7 +10,9 @@ import Confirmation from "@/Helpers/Confirmation";
 import Notification from "@/Helpers/Notification";
 import StockStatusDropdown from "../StockStatusDropdown.vue";
 import axios from "axios";
+import { useSessionStore } from "@/stores/session";
 
+const { canAdd, canDelete, canView, role } = useSessionStore();
 const page = usePage();
 const emptyForm = useForm({});
 const stockStatus = ref("");
@@ -162,7 +164,9 @@ onMounted(() => {
         <i class="fas fa-arrow-left"></i> Back
       </Link>
 
-      <Link :href="route('admin.products.create', hasMerchant ? { merchant: hasMerchant } : {})" class="btn btn--primary">
+      <Link :href="route('admin.products.create', hasMerchant ? { merchant: hasMerchant } : {})" class="btn btn--primary"
+        v-if="canAdd('product')"
+      >
         Add new product <i class="icon-circle-plus-regular"></i>
       </Link>
     </div>
@@ -240,7 +244,7 @@ onMounted(() => {
       <select
         v-model="merchant"
         class="relative z-20 w-full px-5 py-2 transition bg-white border rounded outline-none border-stroke focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input"
-        v-if="!hasMerchant"
+        v-if="!hasMerchant && role === 'admin'"
       >
         <option value="" disabled selected>Merchants</option>
         <option :value="item.uuid" v-for="(item, key) in merchantOptions" :key="key">
@@ -378,15 +382,17 @@ onMounted(() => {
             <td
               class="px-4 py-5 border border-t-0 border-b-0 border-r-0 border-stroke"
             >
-              <div class="flex items-center space-x-3.5">
+              <div class="flex justify-evenly items-center space-x-3.5">
                 <button class="hover:text-primary"
                   @click="handleShowProduct(product)"
+                  v-if="canView('product')"
                 >
                   <EyeSvgIcon />
                 </button>
 
                 <button class="hover:text-primary"
                   @click="handleDelete(product)"
+                  v-if="canDelete('product')"
                 >
                   <DeleteSvgIcon />
                 </button>

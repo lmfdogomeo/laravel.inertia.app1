@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Account\CreateAccountRequest;
+use App\Http\Requests\Account\CreateFormAccountRequest;
+use App\Http\Requests\Account\DeleteAccountRequest;
 use App\Http\Requests\Account\GetAccountRequest;
+use App\Http\Requests\Account\SelectAccountRequest;
+use App\Http\Requests\Account\UpdateAccountRequest;
 use App\Repositories\Contracts\AccountRepositoryInterface;
 use App\Repositories\Contracts\MerchantRepositoryInterface;
 use Illuminate\Http\Request;
@@ -30,7 +34,7 @@ class AccountController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(CreateAccountRequest $request)
+    public function create(CreateFormAccountRequest $request)
     {
         return Inertia::render("Admin/Account/AccountForm", [
             "state" => "create",
@@ -60,9 +64,13 @@ class AccountController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(SelectAccountRequest $request, string $uuid)
     {
-        //
+        $account = $this->repository->findByUuid($uuid, ['merchantUser', 'merchantUser.merchant']);
+        return Inertia::render("Admin/Account/AccountForm", [
+            "state" => "update",
+            "data" => $account
+        ]);
     }
 
     /**
@@ -76,16 +84,22 @@ class AccountController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateAccountRequest $request, string $uuid)
     {
-        //
+        return redirect()->back()->with("message", "Account has been successfully updated")->with("data", $request->parameters());
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(DeleteAccountRequest $request, string $uuid)
     {
-        //
+        $account = $this->repository->delete($uuid);
+
+        return Redirect()->route('admin.accounts.index')
+            ->with('code', '200')
+            ->with('status', 'success')
+            ->with('message', 'Account deleted successfully!')
+            ->with('data', $account);
     }
 }

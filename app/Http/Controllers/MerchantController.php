@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Merchant\CreateFormMerchantRequest;
 use App\Http\Requests\Merchant\CreateMerchantRequest;
 use App\Http\Requests\Merchant\GetMerchantRequest;
 use App\Http\Requests\Merchant\SelectMerchantRequest;
@@ -32,7 +33,7 @@ class MerchantController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(CreateMerchantRequest $request)
+    public function create(CreateFormMerchantRequest $request)
     {
         return Inertia::render("Admin/Merchant/MerchantForm");
     }

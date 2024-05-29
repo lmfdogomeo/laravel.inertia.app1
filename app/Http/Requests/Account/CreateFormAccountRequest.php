@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Http\Requests\Product;
+namespace App\Http\Requests\Account;
 
 use App\Http\Requests\BaseRequest;
 use Illuminate\Http\Request;
 
-class GetProductRequest extends BaseRequest
+class CreateFormAccountRequest extends BaseRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return isAdminUser() || isMerchantUser();
+        return isAdminUser();
     }
 
     /**

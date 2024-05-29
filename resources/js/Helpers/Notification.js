@@ -45,10 +45,17 @@ export const fire = (props = { title: " Message Sent Successfully ", message: "L
   el.classList = "fixed top-5 right-5 z-[9999]";
   el.id = "alert-1";
 
+  let bgColor = "bg-[#34D399]";
+  let fasIcon = `<i class="fas fa-bell"></i>`;
+  if (props.type === 'error') {
+    bgColor = "bg-danger";
+    fasIcon = `<i class="fas fa-exclamation-triangle"></i>`
+  }
+
   el.innerHTML = `
-    <div class="px-6 py-4 pr-10 text-white border-0 rounded bg-[#34D399] shadow-[rgba(13,_38,_76,_0.19)_0px_9px_20px]">
+    <div class="px-6 py-4 pr-10 text-white border-0 rounded ${bgColor} shadow-[rgba(13,_38,_76,_0.19)_0px_9px_20px]">
       <span class="inline-block mr-5 text-xl align-middle">
-        <i class="fas fa-bell"></i>
+        ${fasIcon}
       </span>
       <span class="inline-block mr-8 align-middle">
         <b class="capitalize">${props.title}</b> 

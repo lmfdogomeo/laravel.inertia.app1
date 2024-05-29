@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRoles;
+use App\Http\Requests\Product\CreateFormProductRequest;
 use App\Http\Requests\Product\CreateProductRequest;
+use App\Http\Requests\Product\DeleteProductRequest;
+use App\Http\Requests\Product\GetProductRequest;
+use App\Http\Requests\Product\SelectProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Repositories\Contracts\MerchantRepositoryInterface;
 use App\Repositories\Contracts\ProductCategoryRepositoryInterface;
@@ -19,22 +24,31 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(GetProductRequest $request)
     {
         $filters = [];
         $merchantUuid = $request->query("merchant");
         $categoryUuid = $request->query("category");
         $stockStatus = $request->query("stock-status");
-        if (!empty($merchantUuid)) {
-            $merchant = $this->merchantRepository->findByUuid($merchantUuid);
-            $filters[] = ['merchant_id', "=", $merchant->id];
-        }
+        
         if (!empty($categoryUuid)) {
             $category = $this->categoryRepository->findByUuid($categoryUuid);
             $filters[] = ['category_id', "=", $category->id];
         }
         if (!empty($stockStatus)) {
             $filters[] = ['stock_status', "LIKE", "%{$stockStatus}%"];
+        }
+
+        if ($request->user()?->role->is(UserRoles::MERCHANT)) {
+            $uuid = $request->user()->merchantUser->merchant->uuid;
+            $merchant = $this->merchantRepository->findByUuid($uuid);
+            $filters[] = ['merchant_id', "=", $merchant->id];
+        }
+        else {
+            if (!empty($merchantUuid)) {
+                $merchant = $this->merchantRepository->findByUuid($merchantUuid);
+                $filters[] = ['merchant_id', "=", $merchant->id];
+            }
         }
         
         $data = $this->repository->paginate($request->size ?? 5, $filters);
@@ -48,7 +62,7 @@ class ProductController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request)
+    public function create(CreateFormProductRequest $request)
     {
         $merchantUuid = $request->query("merchant");
         return Inertia::render("Admin/Product/ProductForm", [
@@ -82,7 +96,7 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, string $uuid)
+    public function show(SelectProductRequest $request, string $uuid)
     {
         $filters = [];
 
@@ -144,7 +158,7 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, string $uuid)
+    public function destroy(DeleteProductRequest $request, string $uuid)
     {
         $merchantUuid = $request->query('merchant');
 
@@ -176,16 +190,25 @@ class ProductController extends Controller
         $merchantUuid = $request->query("merchant");
         $categoryUuid = $request->query("category");
         $stockStatus = $request->query("stock-status");
-        if (!empty($merchantUuid)) {
-            $merchant = $this->merchantRepository->findByUuid($merchantUuid);
-            $filters[] = ['merchant_id', "=", $merchant->id];
-        }
+        
         if (!empty($categoryUuid)) {
             $category = $this->categoryRepository->findByUuid($categoryUuid);
             $filters[] = ['category_id', "=", $category->id];
         }
         if (!empty($stockStatus)) {
             $filters[] = ['stock_status', "LIKE", "%{$stockStatus}%"];
+        }
+
+        if ($request->user()?->role->is(UserRoles::MERCHANT)) {
+            $uuid = $request->user()->merchantUser->merchant->uuid;
+            $merchant = $this->merchantRepository->findByUuid($uuid);
+            $filters[] = ['merchant_id', "=", $merchant->id];
+        }
+        else {
+            if (!empty($merchantUuid)) {
+                $merchant = $this->merchantRepository->findByUuid($merchantUuid);
+                $filters[] = ['merchant_id', "=", $merchant->id];
+            }
         }
         
         $data = $this->repository->paginate($request->size ?? 5, $filters);

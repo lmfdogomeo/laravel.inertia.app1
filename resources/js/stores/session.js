@@ -28,19 +28,19 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   function canEdit(module = "") {
-    hasPermission(module, "edit");
+    return hasPermission(module, "edit");
   }
 
   function canDelete(module = "") {
-    hasPermission(module, "delete");
+    return hasPermission(module, "delete");
   }
 
   function canAdd(module = "") {
-    hasPermission(module, "add");
+    return hasPermission(module, "add");
   }
 
   function canView(module = "") {
-    hasPermission(module, "view");
+    return hasPermission(module, "view");
   }
   
   return { user, uuid, role, canEdit, canAdd, canDelete, canView }
