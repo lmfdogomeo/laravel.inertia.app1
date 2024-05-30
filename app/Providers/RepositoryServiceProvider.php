@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Repositories\AccountRepository;
+use App\Repositories\Api\Product\ApiProductRepository;
+use App\Repositories\Api\Product\ApiProductRepositoryInterface;
 use App\Repositories\Contracts\AccountRepositoryInterface;
 use App\Repositories\Contracts\MerchantRepositoryInterface;
 use App\Repositories\Contracts\ProductCategoryRepositoryInterface;
@@ -23,6 +25,9 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
         $this->app->bind(ProductCategoryRepositoryInterface::class, ProductCategoryRepository::class);
         $this->app->bind(AccountRepositoryInterface::class, AccountRepository::class);
+
+        // Api Providers
+        $this->app->bind(ApiProductRepositoryInterface::class, ApiProductRepository::class);
     }
 
     /**

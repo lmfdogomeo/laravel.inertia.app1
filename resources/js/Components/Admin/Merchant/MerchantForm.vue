@@ -48,6 +48,8 @@ const handleSubmitForm = () => {
     endpoint = route("admin.merchants.update", { merchant: uuid.value });
   }
 
+  console.log(form.data())
+
   form[method](endpoint, {
     preserveScroll: true,
     onSuccess: (response) => {

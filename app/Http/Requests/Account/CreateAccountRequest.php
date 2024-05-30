@@ -26,9 +26,16 @@ class CreateAccountRequest extends BaseRequest
         return [
             "name" => "required|string|max:100",
             "email" => "required|string|max:50|email|unique:users,email",
-            "password" => "required|string|max:100",
+            "password" => "required|string|min:8",
             "confirm_password" => "required|string|max:100|same:password",
             "merchant_id" => "required|string|exists:merchants,uuid",
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'password.min' => 'Password must be at least 8 characters',
         ];
     }
 

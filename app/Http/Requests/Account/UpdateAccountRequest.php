@@ -25,7 +25,7 @@ class UpdateAccountRequest extends BaseRequest
         return [
             "name" => "required|string|max:100",
             "email" => "required|string|max:50|email|unique:users,email,$request->account,uuid",
-            "password" => "max:100",
+            // "password" => "min:8",
             "confirm_password" => "max:100|same:password",
             "merchant_id" => "required|string|exists:merchants,uuid",
         ];

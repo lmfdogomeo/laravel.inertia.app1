@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Product\ApiGetProductController;
+use App\Http\Controllers\Api\Product\ApiSelectProductController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\ProductCategoryController;
 use Illuminate\Http\Request;
@@ -20,6 +23,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::prefix('auth')->group(function () {
+    Route::post('login', [AuthController::class, 'login'])->name('api.auth.login');
+});
+
+Route::group(["prefix" => 'products', "middleware" => 'auth:sanctum'], function() {
+    Route::get("", ApiGetProductController::class)->name("api.product.get");
+    Route::get("{uuid}", ApiSelectProductController::class)->name("api.product.select");
+});
 
 Route::group(['middleware' => 'throttle:api'], function () {
     Route::get('/product-categories', [ProductCategoryController::class, 'list'])->name('api.product-categories.list');
