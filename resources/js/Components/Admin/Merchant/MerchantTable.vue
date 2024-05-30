@@ -9,18 +9,11 @@ import Notify from "@/Helpers/Notification";
 import Confirmation from "@/Helpers/Confirmation";
 
 const page = usePage();
-const stockStatus = ref("");
-const productCategory = ref("");
-const productType = ref("");
 const emptyForm = useForm({});
-
-const onResetFilter = () => {
-  stockStatus.value = "";
-  productCategory.value = "";
-  productType.value = "";
-};
-
-const onApplyFilter = () => {};
+const searchForm = useForm({
+  search: ""
+});
+const search = ref("");
 
 const handleShowMerchant = (data) => {
   router.get(route('admin.merchants.show', { merchant: data.uuid }))
@@ -58,6 +51,13 @@ const onDeleteMerchant = (uuid) => {
   })
 }
 
+const handleSearchMerchant = () => {
+  emptyForm.get(route(route().current(), { search: search.value }), {
+    preserveScroll: true,
+    preserveState: true,
+  })
+}
+
 const merchants = computed(() => page.props.paginate?.data || []);
 const from = computed(() => page.props.paginate?.from || 0);
 const to = computed(() => page.props.paginate?.to || 0);
@@ -80,7 +80,8 @@ const links = computed(() => page.props.paginate?.links || []);
         class="field-input !pr-[60px]"
         type="search"
         placeholder="Search Merchant"
-        value=""
+        v-model="search"
+        @keypress.enter="handleSearchMerchant"
       />
       <button
         class="field-btn text-red !right-[40px] transition opacity-0"
@@ -88,7 +89,9 @@ const links = computed(() => page.props.paginate?.links || []);
       >
         <i class="fas fa-close"></i>
       </button>
-      <button class="field-btn icon" aria-label="Search">
+      <button class="field-btn icon" aria-label="Search"
+        @click="handleSearchMerchant"
+      >
         <i class="fas fa-search"></i>
       </button>
     </div>

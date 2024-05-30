@@ -11,34 +11,41 @@ use Illuminate\Contracts\Pagination\Paginator;
 
 class MerchantRepository implements MerchantRepositoryInterface
 {
+    private $query;
+
+    public function __construct()
+    {
+        $this->query = Merchant::query();
+    }
+
     public function query(): Builder
     {
-        return Merchant::query();
+        return $this->query;
     }
 
     public function all(): Collection
     {
-        return $this->query()->get();
+        return $this->query->get();
     }
 
     public function create(array $data): Model
     {
-        return $this->query()->create($data);
+        return $this->query->create($data);
     }
 
     public function find(int $id): Model
     {
-        return $this->query()->findOrFail($id);
+        return $this->query->findOrFail($id);
     }
 
     public function findByUuid(string $uuid, array $relationships = [], array $withCounts = [], array $filters = []): Model
     {
-        return $this->query()->with($relationships)->withCount($withCounts)->where('uuid', '=', $uuid)->firstOrFail();
+        return $this->query->with($relationships)->withCount($withCounts)->where('uuid', '=', $uuid)->firstOrFail();
     }
 
     public function paginate(int $size, array $filters = [], array $relationships = [], array $withCounts = []): Paginator
     {
-        return $this->query()
+        return $this->query
         ->when(!empty($withCounts), function($query) use($withCounts) {
             $query->withCount($withCounts);
         })
@@ -63,16 +70,23 @@ class MerchantRepository implements MerchantRepositoryInterface
         return $model;
     }
 
+    public function where($column)
+    {
+        $this->query->where($column);
+
+        return $this;
+    }
+
     public function search(mixed $filter): Model
     {
-        $data = $this->query()->where($filter)->firstOrFail();
+        $data = $this->query->where($filter)->firstOrFail();
 
         return $data;
     }
 
     public function apiSearch(mixed $filter): ?Model
     {
-        $data = $this->query()->where($filter)->first();
+        $data = $this->query->where($filter)->first();
         // $data = $this->query()->where("company_tax_id", "=", "COM-1234-BB")->first();
 
         return $data;

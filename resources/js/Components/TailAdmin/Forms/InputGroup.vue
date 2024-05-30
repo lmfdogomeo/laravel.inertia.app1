@@ -9,13 +9,10 @@ const { label, type, placeholder, customClasses, required, modelValue, inputClas
     type: Boolean,
     default: false
   },
-  modelValue: {
-    type: [Object, String, Boolean]
-  },
   disabled: [String, Boolean, null]
 });
 
-const emits = defineEmits(['update:modelValue']);
+const model = defineModel();
 </script>
 
 <template>
@@ -29,8 +26,7 @@ const emits = defineEmits(['update:modelValue']);
       :placeholder="placeholder"
       class="w-full rounded border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
       :class="inputClass || ''"
-      :value="modelValue"
-      @change="(e) => emits('update:modelValue', e.target.value)"
+      v-model="model"
       :disabled="disabled"
     />
 

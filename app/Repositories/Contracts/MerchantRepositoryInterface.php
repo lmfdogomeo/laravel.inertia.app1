@@ -7,4 +7,6 @@ interface MerchantRepositoryInterface extends RepositoryInterface, PaginateRepos
     public function search(mixed $filter);
 
     public function apiSearch(mixed $filter);
+
+    public function where(mixed $column);
 }

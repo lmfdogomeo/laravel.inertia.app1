@@ -26,4 +26,9 @@ class GetMerchantRequest extends BaseRequest
             //
         ];
     }
+
+    public function search(): string
+    {
+        return $this->query("search") ?? "";
+    }
 }

@@ -23,11 +23,19 @@ class GetProductService extends BaseProductService
         }
         $product = $this->repository->paginate($request->size ?? 5, $filter);
 
-        // return response()->json([
-        //     'user' => authenticatedUser(),
-        //     'data' => auth()->user()->role->is(UserRoles::MERCHANT),
-        //     'load' => $user->merchantUser->merchant->uuid
-        // ]); 
+        // $search = $request->search ?? "";
+        // $product = $this->repository->where(function ($query) use($search) {
+        //     $query->where('product_name', "LIKE", "%$search%")
+        //         ->orWhere("stock_quantity", "=", $search)
+        //         ->orWhere("stock_status", "LIKE", "%$search%")
+        //         ->orWhere("price", "=", $search)
+        //         ->orWhere("rate", "=", $search);
+        // })->paginate($request->size ?? 5);
+
+        // // return response()->json([
+        // //     'user' => authenticatedUser(),
+        // //     'data' => $test,
+        // // ]); 
         
         return ProductResource::collection($product);
     }

@@ -23,7 +23,21 @@ class MerchantController extends Controller
      */
     public function index(GetMerchantRequest $request)
     {
-        $data = $this->repository->paginate($request->size ?? 5, [], [], ['products']);
+        $query = $this->repository;
+
+        if (!empty($search = $request->search())) {
+            $query->where(function ($query) use($search) {
+                $query->where("company_tax_id", "LIKE", "%$search%")
+                    ->orWhere('company_name', "LIKE", "%$search%")
+                    ->orWhere('contact_number', "LIKE", "%$search%")
+                    ->orWhere('address', "LIKE", "%$search%")
+                    ->orWhere('city', "LIKE", "%$search%")
+                    ->orWhere('country', "LIKE", "%$search%")
+                    ->orWhere('postal_code', "LIKE", "%$search%");
+            });
+        }
+
+        $data = $query->paginate($request->size ?? 5, [], [], ['products']);
         return Inertia::render('Admin/Merchant/MerchantList', [
             'paginate' => $data,
             'state' => 'create'

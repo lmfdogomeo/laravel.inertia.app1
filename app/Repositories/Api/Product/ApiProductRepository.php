@@ -11,24 +11,30 @@ use Illuminate\Support\Collection;
 
 class ApiProductRepository extends BaseRepository implements ApiProductRepositoryInterface
 {
+    private $query;
+    public function __construct()
+    {
+        $this->query = Product::query();
+    }
+
     public function query(): Builder
     {
-        return Product::query();
+        return $this->query;
     }
 
     public function all(): Collection
     {
-        return $this->query()->get();
+        return $this->query->get();
     }
 
     public function find(int $id): ?Model
     {
-        return $this->query()->find($id);
+        return $this->query->find($id);
     }
 
     public function findByUuid(string $uuid, array $relationships = [], array $withCounts = [], array $filters = []): ?Model
     {
-        return $this->query()
+        return $this->query
             ->when(!empty($filters), function($query) use($filters) {
                 foreach($filters as $key => $value) {
                     $query->where($value[0], $value[1], $value[2]);
@@ -39,7 +45,7 @@ class ApiProductRepository extends BaseRepository implements ApiProductRepositor
 
     public function paginate(int $size, array $filters = [], array $relationships = [], array $withCounts = []): Paginator
     {
-        return $this->query()
+        return $this->query
             ->when(!empty($filters), function($query) use($filters) {
                 foreach($filters as $key => $value) {
                     $query->where($value[0], $value[1], $value[2]);
@@ -50,7 +56,7 @@ class ApiProductRepository extends BaseRepository implements ApiProductRepositor
 
     public function create(array $data): ?Model
     {
-        return $this->query()->create($data);
+        return $this->query->create($data);
     }
 
     public function update(string $uuid, array $data, array $filters = []): ?Model
@@ -77,5 +83,19 @@ class ApiProductRepository extends BaseRepository implements ApiProductRepositor
         }
 
         return null;
+    }
+
+    public function where($column)
+    {
+        $this->query->where($column);
+
+        return $this;
+    }
+
+    public function execute()
+    {
+        return $this->query->toSql();
+        // return $this->query()->where('product_name', "=", "test", 'brand_name', "=", "sample")->toSql();
+        // return $this->query()->where(["product_name" => ["product_name", "=", "sample"], "brand_name" => ["brand_name", "=", "test"]])->toSql();
     }
 }

@@ -7,5 +7,5 @@ use App\Repositories\Contracts\PaginateRepositoryInterface;
 
 interface ApiProductRepositoryInterface extends ApiRepositoryContract, PaginateRepositoryInterface
 {
-
+    public function where(mixed $column);
 }
