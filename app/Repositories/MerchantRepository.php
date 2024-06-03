@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Merchant;
 use App\Repositories\Contracts\MerchantRepositoryInterface;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Contracts\Pagination\Paginator;

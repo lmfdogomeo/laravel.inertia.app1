@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Product;
 use App\Repositories\Contracts\ProductRepositoryInterface;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -30,7 +30,7 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function create(array $data): Model
     {
-        return $this->query->create($data);
+        return $this->query()->create($data);
     }
 
     public function find(int $id): Model

@@ -133,6 +133,9 @@ const links = computed(() => page.props.paginate?.links || []);
             <th class="px-4 py-4 font-medium text-black dark:text-white">
               Postal Code
             </th>
+            <th class="px-4 py-4 font-medium text-black dark:text-white">
+              Total Products
+            </th>
             <th
               class="px-4 py-4 font-medium text-black border border-t-0 border-b-0 border-r-0 border-stroke dark:text-white"
             >
@@ -175,6 +178,11 @@ const links = computed(() => page.props.paginate?.links || []);
                 {{ merchant.postal_code }}
               </p>
             </td>
+            <td class="px-4 py-5">
+              <p class="text-black dark:text-white">
+                {{ merchant.products_count || 0 }}
+              </p>
+            </td>
             <td
               class="px-4 py-5 border border-t-0 border-b-0 border-r-0 border-stroke"
             >
@@ -191,6 +199,12 @@ const links = computed(() => page.props.paginate?.links || []);
                   <DeleteSvgIcon />
                 </button>
               </div>
+            </td>
+          </tr>
+
+          <tr v-if="merchants.length === 0">
+            <td colspan="9" class="px-4 py-5 italic font-bold text-center">
+              No data found.
             </td>
           </tr>
         </tbody>

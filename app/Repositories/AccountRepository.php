@@ -6,7 +6,7 @@ use App\Models\MerchantUser;
 use App\Models\User;
 use App\Repositories\Contracts\AccountRepositoryInterface;
 use Exception;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Contracts\Pagination\Paginator;

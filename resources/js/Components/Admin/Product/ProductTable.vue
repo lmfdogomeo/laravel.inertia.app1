@@ -18,7 +18,7 @@ const emptyForm = useForm({});
 const stockStatus = ref("");
 const productCategory = ref("");
 const merchant = ref("");
-const selectAction = ref("");
+const perPage = ref(5);
 const stockStatusOptions = ref(STOCK_STATUSES);
 const categoryOptions = ref([]);
 const merchantOptions = ref([]);
@@ -71,6 +71,19 @@ const onApplyFilter = () => {
     }
   }
 };
+
+const handlePerPageChange = () => {
+  // console.log('perpage', route());
+  // console.log('perpage', route().t.url);
+  // console.log('perpage', route().params);
+  form.get(route(route().current(), { ...route().params, size: perPage.value }), {
+    preserveScroll: true,
+    preserveState: true,
+    onSuccess: (response) => {
+      console.log('success', response)
+    }
+  })
+}
 
 const handleShowProduct = (data) => {
   router.get(route('admin.products.show', { product: data.uuid, ... hasMerchant.value ? { merchant: hasMerchant.value } : {} }))
@@ -148,6 +161,10 @@ onMounted(() => {
   fetchCategories();
   if (!hasMerchant.value) {
     fetchMerchants();
+  }
+
+  if (route().params?.size) {
+    perPage.value = route().params?.size || 5;
   }
 })
 
@@ -271,15 +288,13 @@ onMounted(() => {
     <p>View products: <span class="font-semibold">{{ from }}-{{ to }}</span>/{{ total }}</p>
     <div class="md:min-w-[280px]">
       <select
-        v-model="selectAction"
+        v-model="perPage"
         class="relative z-20 w-full px-5 py-2 transition bg-white border rounded outline-none border-stroke focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input"
+        @change="handlePerPageChange"
       >
-        <option value="" disabled selected>Select Action</option>
-        <option value="update" class="text-body dark:text-bodydark">
-          Update
-        </option>
-        <option value="delete" class="text-body dark:text-bodydark">
-          Delete
+        <option value="" disabled selected>Per Page</option>
+        <option :value="item" class="text-body dark:text-bodydark" v-for="(item, index) in [5,10,20,50,100,500]" :key="index">
+          {{ item }}
         </option>
       </select>
     </div>

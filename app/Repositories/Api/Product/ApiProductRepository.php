@@ -4,7 +4,7 @@ namespace App\Repositories\Api\Product;
 
 use App\Models\Product;
 use App\Repositories\BaseRepository;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
