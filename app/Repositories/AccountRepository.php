@@ -10,25 +10,31 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Contracts\Pagination\Paginator;
-use InvalidArgumentException;
 
 class AccountRepository extends BaseRepository implements AccountRepositoryInterface
 {
+    private $query;
+
+    public function __construct()
+    {
+        $this->query = User::query();
+    }
+
     public function query(): Builder
     {
-        return User::query();
+        return $this->query;
     }
 
     public function all(): Collection
     {
-        return $this->query()->get();
+        return $this->query->get();
     }
 
     public function create(array $data): Model
     {
         $this->startDbTransaction();
 
-        $user = $this->query()->create($data);
+        $user = $this->query->create($data);
 
         if (!$user->save()) {
             $this->rollbackDbTransaction();
@@ -54,17 +60,17 @@ class AccountRepository extends BaseRepository implements AccountRepositoryInter
 
     public function find(int $id): Model
     {
-        return $this->query()->findOrFail($id);
+        return $this->query->findOrFail($id);
     }
 
     public function findByUuid(string $uuid, array $relationships = [], array $withCounts = [], array $filters = []): Model
     {
-        return $this->query()->with($relationships)->withCount($withCounts)->where('uuid', '=', $uuid)->firstOrFail();
+        return $this->query->with($relationships)->withCount($withCounts)->where('uuid', '=', $uuid)->firstOrFail();
     }
 
     public function paginate(int $size, array $filters = [], array $relationships = [], array $withCounts = []): Paginator
     {
-        return $this->query()
+        return $this->query
         ->when(!empty($relationships), function($query) use($relationships) {
             $query->with($relationships);
         })
@@ -90,5 +96,31 @@ class AccountRepository extends BaseRepository implements AccountRepositoryInter
         $model->delete();
 
         return $model;
+    }
+
+    public function count(): int
+    {
+        $data = $this->query->count();
+
+        return $data;
+    }
+
+    public function dataPerMonthByYear($year)
+    {
+        $totals = $this->query->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+            ->whereYear('created_at', $year)
+            ->groupBy('month')
+            ->pluck('total', 'month')
+            ->toArray();
+
+        // Initialize an array with 0 for each month
+        $monthlyTotals = array_fill(1, 12, 0);
+
+        // Merge the results with the initialized array
+        foreach ($totals as $month => $total) {
+            $monthlyTotals[$month] = $total;
+        }
+
+        return $monthlyTotals;
     }
 }

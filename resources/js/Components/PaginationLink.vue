@@ -60,10 +60,8 @@ const handleClickPaginate = (params) => {
             @click.prevent="handleClickPaginate(link)"
             class="relative inline-flex items-center px-4 py-2 text-sm font-semibold"
             :class="{
-              'z-10 text-white bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600':
-                link.active,
-              'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0':
-                !link.active,
+              'z-10 text-white bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600': link.active,
+              'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0': !link.active,
               'cursor-not-allowed opacity-50 pointer-events-none': !link.url,
               'rounded-l-md': index === 0,
               'rounded-r-md': index === links.length - 1,

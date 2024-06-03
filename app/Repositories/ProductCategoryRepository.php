@@ -11,39 +11,46 @@ use Illuminate\Support\Collection;
 
 class ProductCategoryRepository implements ProductCategoryRepositoryInterface
 {
+    private $query;
+
+    public function __construct()
+    {
+        $this->query = ProductCategory::query();
+    }
+
     public function query(): Builder
     {
-        return ProductCategory::query();
+        return $this->query;
     }
 
     public function all(): Collection
     {
-        return $this->query()->get();
+        return $this->query->get();
     }
 
     public function create(array $data): Model
     {
-        return $this->query()->create($data);
+        return $this->query->create($data);
     }
 
     public function find(int $id): Model
     {
-        return $this->query()->findOrFail($id);
+        return $this->query->findOrFail($id);
     }
 
     public function findByUuid(string $uuid, array $relationships = [], array $withCounts = [], array $filters = []): Model
     {
-        return $this->query()->where('uuid', '=', $uuid)->firstOrFail();
+        return $this->query->where('uuid', '=', $uuid)->firstOrFail();
     }
 
     public function paginate(int $size, array $filters = [], array $relationships = [], array $withCounts = []): Paginator
     {
-        return $this->query()->paginate($size);
+        return $this->query->paginate($size);
     }
 
     public function update(string $uuid, array $data, array $filters = []): Model
     {
-        $model = $this->query()->findByUuid($uuid);
+        $model = $this->query->findByUuid($uuid);
 
         $model->update($data);
 
@@ -57,5 +64,12 @@ class ProductCategoryRepository implements ProductCategoryRepositoryInterface
         $model->delete();
 
         return $model;
+    }
+
+    public function count(): int
+    {
+        $data = $this->query->count();
+
+        return $data;
     }
 }

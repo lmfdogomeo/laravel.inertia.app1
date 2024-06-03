@@ -91,4 +91,30 @@ class MerchantRepository implements MerchantRepositoryInterface
 
         return $data;
     }
+
+    public function count(): int
+    {
+        $data = $this->query->count();
+
+        return $data;
+    }
+
+    public function dataPerMonthByYear($year)
+    {
+        $totals = $this->query->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+            ->whereYear('created_at', $year)
+            ->groupBy('month')
+            ->pluck('total', 'month')
+            ->toArray();
+
+        // Initialize an array with 0 for each month
+        $monthlyTotals = array_fill(1, 12, 0);
+
+        // Merge the results with the initialized array
+        foreach ($totals as $month => $total) {
+            $monthlyTotals[$month] = $total;
+        }
+
+        return $monthlyTotals;
+    }
 }

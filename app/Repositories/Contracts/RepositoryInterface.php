@@ -21,4 +21,6 @@ interface RepositoryInterface
     public function update(string $uuid, array $data, array $filters = []): Model;
 
     public function delete(string $uuid, array $filters = []): Model;
+
+    public function count(): int;
 }

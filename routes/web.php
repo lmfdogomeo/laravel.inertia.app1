@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
@@ -45,8 +46,16 @@ Route::middleware([
     Route::resource("/products", ProductController::class)->names('admin.products');
     Route::resource("/accounts", AccountController::class)->names('admin.accounts');
 
+    Route::get("/dashboard/total-user", [DashboardController::class, 'getTotalUser'])->name('admin.total.user');
+    Route::get("/dashboard/total-merchant", [DashboardController::class, 'getTotalMerchant'])->name('admin.total.merchant');
+    Route::get("/dashboard/total-product", [DashboardController::class, 'getTotalProduct'])->name('admin.total.product');
+
+    Route::get("/dashboard/total-per-month-by-year-product", [DashboardController::class, 'getDataProductByYear'])->name('admin.total-per-month-by-year.product');
+    Route::get("/dashboard/total-per-month-by-year-merchant", [DashboardController::class, 'getDataMerchantByYear'])->name('admin.total-per-month-by-year.merchant');
+    Route::get("/dashboard/total-per-month-by-year-user", [DashboardController::class, 'getDataUserByYear'])->name('admin.total-per-month-by-year.user');
+
     Route::get('/dashboard', function () {
-        return Inertia::render('TailAdmin/Dashboard/ECommerceView');
+        return Inertia::render('Admin/Dashboard');
     })->name('dashboard');
 
     Route::get('/calendar', function () {

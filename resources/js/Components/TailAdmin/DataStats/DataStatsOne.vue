@@ -113,9 +113,9 @@ const cardItems = ref([
       v-html="item.icon"
     ></div>
 
-    <div class="mt-4 flex items-end justify-between">
+    <div class="flex items-end justify-between mt-4">
       <div>
-        <h4 class="text-title-md font-bold text-black dark:text-white">{{ item.total }}</h4>
+        <h4 class="font-bold text-black text-title-md dark:text-white">{{ item.total }}</h4>
         <span class="text-sm font-medium">{{ item.title }}</span>
       </div>
 
