@@ -5,7 +5,10 @@ namespace App\Console\Commands\User;
 use App\Console\Commands\Traits\HasValidator;
 use App\Enums\UserRoles;
 use App\Models\User;
+use App\Repositories\Contracts\AccountRepositoryInterface;
+use App\Repositories\Contracts\MerchantRepositoryInterface;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Str;
@@ -20,6 +23,11 @@ use function Laravel\Prompts\text;
 class CreateUserCommand extends Command
 {
     use HasValidator;
+
+    public function __construct(protected MerchantRepositoryInterface $merchantRepository, protected AccountRepositoryInterface $accountRepository)
+    {
+        parent::__construct();
+    }
     
     /**
      * The name and signature of the console command.
@@ -44,6 +52,18 @@ class CreateUserCommand extends Command
             label: 'Select user role',
             options: UserRoles::array()
         );
+
+        if ($data['role'] === UserRoles::MERCHANT->value) {
+            $merchantUuid = text(
+                label: 'Merchant UUID: ',
+                required: true,
+                validate: fn (string $value) => $this->validate($value, 'merchant_uuid', ['string', 'exists:merchants,uuid'])
+            );
+
+            $merchant = $this->merchantRepository->findByUuid($merchantUuid);
+
+            $data['merchant_id'] = $merchant->id;
+        }
 
         $data['name'] = text(
             label: 'Name: ',
@@ -87,19 +107,30 @@ class CreateUserCommand extends Command
 
         if($confirmed){
             try {
-                $user = User::create($data);
+                DB::beginTransaction();
+
+                if (empty($data['merchant_id'])) {
+                    $user = User::create($data);
+                }
+                else {
+                    $user = $this->accountRepository->create($data);
+                }
 
                 table(
                     ['ID', 'Name', 'Email', 'Password', 'Role'],
                     [[$user->uuid, $user->name, $user->email, $rawPassword, Str::of($user->role->value)->headline()]]
                 );
+
+                DB::commit();
+
+                info('User creation confirmed.');
             } catch (\Exception $e) {
+                DB::rollBack();
                 report($e);
                 error('Unable to create user. Error: ' . $e->getMessage() . ' at line ' . $e->getLine());
                 return self::FAILURE;
             }
-
-            info('User creation confirmed.');
+            
         } else{
             info('User creation cancelled.');
         }
