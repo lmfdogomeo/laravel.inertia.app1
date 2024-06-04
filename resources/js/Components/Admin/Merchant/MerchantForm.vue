@@ -48,8 +48,6 @@ const handleSubmitForm = () => {
     endpoint = route("admin.merchants.update", { merchant: uuid.value });
   }
 
-  console.log(form.data())
-
   form[method](endpoint, {
     preserveScroll: true,
     onSuccess: (response) => {
@@ -126,8 +124,6 @@ onMounted(() => {
 
   // Alert.createAlert({ title: "Success", message: "Merchant has been successfully submitted", duration: 50000 });
   // Notify.fire({ title: "Success", message: "Merchant has been successfully submitted", duration: 5000 });
-
-  console.log("xxx-app", page.props);
 
   const data = page.props.data || {};
 

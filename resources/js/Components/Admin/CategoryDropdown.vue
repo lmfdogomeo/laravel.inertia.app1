@@ -10,8 +10,6 @@ const options = ref([]);
 const fetchCategories = async() => {
   try {
     const {data, status} = await axios.get(route('api.product-categories.list'));
-    console.log('data', data)
-    console.log('status', status)
     if ([200,201].includes(status)) {
       options.value = data?.data || [];
     }

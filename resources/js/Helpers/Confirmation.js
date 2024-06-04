@@ -1,4 +1,13 @@
-export const confirm = (props = { title: "Confirmation ", text: "Click OK to continue", type: "success", cancelButtonText: "Cancel", confirmButtonText: "Continue" }) => {
+export const confirm = (args = {}) => {
+  let props = {
+    title: args.title || "Confirmation",
+    text: args.text || "Click OK to continue",
+    type: args.type || "success",
+    cancelButtonText: args.cancelButtonText || "Cancel",
+    confirmButtonText: args.confirmButtonText || "Continue",
+    allowCloseClickOutside: args.allowCloseClickOutside || false,
+  }
+  
   return new Promise((resolve, reject) => {
     // Create a <style> element
     const style = document.createElement('style');
@@ -25,7 +34,7 @@ export const confirm = (props = { title: "Confirmation ", text: "Click OK to con
 
       @keyframes popupIn {
         0% {
-          transform: scale(0);
+          transform: scale(0.4);
         }
         50% {
           transform: scale(1.1);
@@ -43,7 +52,7 @@ export const confirm = (props = { title: "Confirmation ", text: "Click OK to con
           transform: scale(1.1);
         }
         100% {
-          transform: scale(0);
+          transform: scale(0.4);
         }
       }
 
@@ -183,6 +192,17 @@ export const confirm = (props = { title: "Confirmation ", text: "Click OK to con
     btnConfirm.addEventListener('click', () => {
       hideConfirm('confirm');
     });
+
+    if (props.allowCloseClickOutside === true) {
+      const confirmBackdropEl = document.querySelector('#confirm-1');
+      function clickedBackdrop(event) {
+        if (event.target === confirmBackdropEl) {
+          hideConfirm('cancel');
+          confirmBackdropEl.removeEventListener('click', clickedBackdrop);
+        }
+      }
+      confirmBackdropEl.addEventListener('click', clickedBackdrop);
+    }
   });
 };
 

@@ -28,7 +28,7 @@ const handleDelete = (data) => {
   Confirmation.confirm({
     title: "Confirmation",
     type: "warning",
-    text: "Are you sure you want to delete this account?",
+    text: "Are you sure you want to delete this account????",
     cancelButtonText: "Cancel",
     confirmButtonText: "Continue",
   }).then((result) => {

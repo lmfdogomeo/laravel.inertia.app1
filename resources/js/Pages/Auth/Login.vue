@@ -3,12 +3,14 @@ import InputError from "@/Components/InputError.vue";
 import DefaultAuthCard from "@/Components/TailAdmin/Auths/DefaultAuthCard.vue";
 import InputGroup from "@/Components/TailAdmin/Auths/InputGroup.vue";
 import { Link, useForm } from "@inertiajs/vue3";
+import { useSessionStore } from "@/stores/session";
 
 defineProps({
   canResetPassword: Boolean,
   status: String,
 });
 
+const { initStore } = useSessionStore();
 const form = useForm({
   email: "",
   password: "",
@@ -23,6 +25,9 @@ const handleLogin = () => {
     }))
     .post(route("login"), {
       onFinish: () => form.reset("password"),
+      onSuccess: () => {
+        initStore()
+      }
     });
 };
 </script>

@@ -89,15 +89,11 @@ const handleSubmitForm = () => {
         form.reset();
         form.merchant_id = hasMerchant.value || null;
       }
-
-      console.log('response', response)
     },
     onError: (error) => {
       console.log("onError", error);
 
       if (error.merchant_id) {
-        console.log('error-merchant', error.merchant_id)
-
         Notification.fire({
           type: 'error',
           title: "[Error]",
@@ -148,8 +144,6 @@ const onDeleteProduct = () => {
 const fetchMerchants = async() => {
   try {
     const {data, status} = await axios.get(route('api.merchant.list'));
-    console.log('data', data)
-    console.log('status', status)
     if ([200,201].includes(status)) {
       merchantOptions.value = data?.data || [];
     }
@@ -168,8 +162,6 @@ const uuid = computed(() => page.props.data?.uuid || null);
 
 onMounted(() => {
   form.merchant_id = hasMerchant.value || null;
-
-  console.log('app', page.props)
 
   const productData = page.props?.data || {};
 

@@ -1,16 +1,18 @@
 <script setup>
 import { useSidebarStore } from "@/stores/sidebar";
 import { onClickOutside } from "@vueuse/core";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import SidebarItem from "./SidebarItem.vue";
-import { Link } from "@inertiajs/vue3";
+import { Link, usePage } from "@inertiajs/vue3";
 import { useSessionStore } from "@/stores/session";
 
+const page = usePage();
 const target = ref(null);
 
 const sidebarStore = useSidebarStore();
 
-const { canEdit, canAdd, canDelete, canView } = useSessionStore();
+// const { canEdit, canAdd, canDelete, canView } = useSessionStore();
+const session = useSessionStore();
 
 onClickOutside(target, () => {
   sidebarStore.isSidebarOpen = false;
@@ -18,7 +20,7 @@ onClickOutside(target, () => {
 
 const menuGroups = ref([]);
 
-onMounted(() => {
+const initSidebar = () => {
   let sidebarItems = [
     {
       name: "ADMIN",
@@ -58,12 +60,12 @@ onMounted(() => {
     },
   ];
 
-  if (canAdd("merchant") || canEdit("merchant") || canDelete("merchant") || canView("merchant")) {
+  if (session.canAdd("merchant") || session.canEdit("merchant") || session.canDelete("merchant") || session.canView("merchant")) {
     let children = [];
-    if (canAdd("merchant")) {
+    if (session.canAdd("merchant")) {
       children.push({ label: "Add New", route: "admin.merchants.create" })
     }
-    if (canEdit("merchant") || canDelete("merchant") || canView("merchant")) {
+    if (session.canEdit("merchant") || session.canDelete("merchant") || session.canView("merchant")) {
       children.push({ label: "Merchants", route: "admin.merchants.index" })
     }
 
@@ -81,12 +83,12 @@ onMounted(() => {
     }
   }
 
-  if (canAdd("product") || canEdit("product") || canDelete("product") || canView("product")) {
+  if (session.canAdd("product") || session.canEdit("product") || session.canDelete("product") || session.canView("product")) {
     let children = [];
-    if (canAdd("product")) {
+    if (session.canAdd("product")) {
       children.push({ label: "Add New", route: "admin.products.create" })
     }
-    if (canEdit("product") || canDelete("product") || canView("product")) {
+    if (session.canEdit("product") || session.canDelete("product") || session.canView("product")) {
       children.push({ label: "Products", route: "admin.products.index" })
     }
 
@@ -104,7 +106,7 @@ onMounted(() => {
     }
   }
 
-  if (canAdd("account") || canEdit("account") || canDelete("account") || canView("account")) {
+  if (session.canAdd("account") || session.canEdit("account") || session.canDelete("account") || session.canView("account")) {
     sidebarItems[0].menuItems.push({
       icon: `<i class="fas fa-users"></i>`,
       label: "Accounts",
@@ -113,6 +115,11 @@ onMounted(() => {
   }
 
   menuGroups.value = sidebarItems;
+}
+
+onMounted(() => {
+  session.initStore();
+  initSidebar();
 });
 </script>
 

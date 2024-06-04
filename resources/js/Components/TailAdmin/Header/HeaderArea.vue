@@ -20,7 +20,6 @@ const { isSidebarOpen, toggleSidebar } = useSidebarStore()
           class="z-99999 block rounded-sm border border-stroke bg-white p-1.5 shadow-sm dark:border-strokedark dark:bg-boxdark lg:hidden"
           @click="
             () => {
-              console.log('Toggling Sidebar')
               toggleSidebar()
             }
           "

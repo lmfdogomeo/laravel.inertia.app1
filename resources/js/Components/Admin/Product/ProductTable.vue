@@ -55,7 +55,7 @@ const onApplyFilter = () => {
         preserveScroll: true,
         preserveState: true,
         onSuccess: (response) => {
-          console.log('success', response)
+          // 
         }
       })
     }
@@ -65,7 +65,7 @@ const onApplyFilter = () => {
         preserveScroll: true,
         preserveState: true,
         onSuccess: (response) => {
-          console.log('success', response)
+          // 
         }
       })
     }
@@ -73,14 +73,11 @@ const onApplyFilter = () => {
 };
 
 const handlePerPageChange = () => {
-  // console.log('perpage', route());
-  // console.log('perpage', route().t.url);
-  // console.log('perpage', route().params);
   form.get(route(route().current(), { ...route().params, size: perPage.value }), {
     preserveScroll: true,
     preserveState: true,
     onSuccess: (response) => {
-      console.log('success', response)
+      // 
     }
   })
 }
@@ -92,8 +89,6 @@ const handleShowProduct = (data) => {
 const fetchCategories = async() => {
   try {
     const {data, status} = await axios.get(route('api.product-categories.list'));
-    console.log('data', data)
-    console.log('status', status)
     if ([200,201].includes(status)) {
       categoryOptions.value = data?.data || [];
     }
@@ -105,8 +100,6 @@ const fetchCategories = async() => {
 const fetchMerchants = async() => {
   try {
     const {data, status} = await axios.get(route('api.merchant.list'));
-    console.log('data', data)
-    console.log('status', status)
     if ([200,201].includes(status)) {
       merchantOptions.value = data?.data || [];
     }

@@ -53,8 +53,6 @@ const handleSearch = async () => {
       route("admin.accounts.api-search"),
       { params: { search: search.value } }
     );
-    console.log("data", data);
-    console.log("status", status);
 
     if ([200, 201].includes(status) && data.data) {
       merchantForm.company_tax_id = data.data?.company_tax_id;
@@ -102,8 +100,6 @@ const handleSubmitForm = () => {
         form.reset();
         form.merchant_id = merchantForm.uuid || null;
       }
-
-      console.log("response", response);
     },
     onError: (error) => {
       console.log("onError", error);
@@ -134,6 +130,7 @@ const handleDelete = () => {
     text: "Are you sure you want to delete this account?",
     cancelButtonText: "Cancel",
     confirmButtonText: "Continue",
+    allowCloseClickOutside: true
   }).then((result) => {
     if (result.isConfirm) {
       onDeleteAccount();
@@ -170,7 +167,6 @@ const propsData = computed(() => page.props.data || {});
 
 onMounted(() => {
   if (isUpdate.value) {
-    console.log("propsData", propsData.value);
     merchantForm.company_tax_id =
       propsData.value?.merchant_user?.merchant?.company_tax_id;
     merchantForm.company_name =

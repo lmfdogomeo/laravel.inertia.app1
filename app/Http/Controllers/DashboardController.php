@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRoles;
 use App\Http\Requests\Dashboard\GetTotalMerchantRequest;
 use App\Http\Requests\Dashboard\GetTotalProductRequest;
 use App\Http\Requests\Dashboard\GetTotalUserRequest;
@@ -41,7 +42,16 @@ class DashboardController extends Controller
     public function getDataProductByYear()
     {
         $year = Date("Y");
-        $data = $this->productRepository->dataPerMonthByYear($year);
+        $merchantId = null;
+        if (auth()->user()->role->is(UserRoles::MERCHANT)) {
+            $merchantId = auth()->user()->merchantUser->merchant->id;
+            // $data = $this->productRepository->dataPerMonthByYear($year, $merchantId);
+        }
+        // else {
+        //     $data = $this->productRepository->dataPerMonthByYear($year);
+        // }
+        
+        $data = $this->productRepository->dataPerMonthByYear($year, $merchantId);
 
         return $data;
     }

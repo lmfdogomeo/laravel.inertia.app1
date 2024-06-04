@@ -87,10 +87,13 @@ class ProductRepository implements ProductRepositoryInterface
         return $data;
     }
 
-    public function dataPerMonthByYear($year)
+    public function dataPerMonthByYear($year, $merchantId = null)
     {
         $totals = $this->query->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
             ->whereYear('created_at', $year)
+            ->when(!empty($merchantId), function($query) use($merchantId) {
+                $query->where('merchant_id', "=", $merchantId);
+            })
             ->groupBy('month')
             ->pluck('total', 'month')
             ->toArray();
@@ -104,5 +107,12 @@ class ProductRepository implements ProductRepositoryInterface
         }
 
         return $monthlyTotals;
+    }
+
+    public function where($column)
+    {
+        $this->query->where($column);
+
+        return $this;
     }
 }

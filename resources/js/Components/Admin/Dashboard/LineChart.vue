@@ -1,22 +1,24 @@
 <script setup>
+import { useSessionStore } from "@/stores/session";
 import { onMounted, reactive, ref } from "vue";
 // @ts-ignore
 import VueApexCharts from "vue3-apexcharts";
 
+const { canView } = useSessionStore();
 const chartData = reactive({
   series: [
-    {
-      name: "Users",
-      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    },
-    {
-      name: "Merchants",
-      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    },
-    {
-      name: "Products",
-      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    },
+    // {
+    //   name: "Users",
+    //   data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    // },
+    // {
+    //   name: "Merchants",
+    //   data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    // },
+    // {
+    //   name: "Products",
+    //   data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    // },
   ],
   labels: [
     "Jan",
@@ -133,60 +135,96 @@ const apexOptions = {
       },
     },
     min: 0,
-    max: 100,
+    // max: 100,
   },
 };
 
-const onGetTotalProductPerMothByYear = new Promise(async (resolve, reject) => {
-	try {
-    const {data, status} = await axios.get(route('admin.total-per-month-by-year.product'));
-    if ([200,201].includes(status)) {
-      resolve(data || 0);
+const onGetTotalProductPerMothByYear = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const {data, status} = await axios.get(route('admin.total-per-month-by-year.product'));
+      if ([200,201].includes(status)) {
+        resolve(data || 0);
+      }
+    } catch (error) {
+      console.log('error', error?.response?.data?.message || error)
+      resolve(0);
     }
-  } catch (error) {
-    console.log('error', error?.response?.data?.message || error)
-    resolve(0);
-  }
-});
+  });
+}
 
-const onGetTotalMerchantPerMothByYear = new Promise(async (resolve, reject) => {
-	try {
-    const {data, status} = await axios.get(route('admin.total-per-month-by-year.merchant'));
-    if ([200,201].includes(status)) {
-      resolve(data || 0);
+const onGetTotalMerchantPerMothByYear = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const {data, status} = await axios.get(route('admin.total-per-month-by-year.merchant'));
+      if ([200,201].includes(status)) {
+        resolve(data || 0);
+      }
+    } catch (error) {
+      console.log('error', error?.response?.data?.message || error)
+      resolve(0);
     }
-  } catch (error) {
-    console.log('error', error?.response?.data?.message || error)
-    resolve(0);
-  }
-});
+  });
+}
 
-const onGetTotalUserPerMothByYear = new Promise(async (resolve, reject) => {
-	try {
-    const {data, status} = await axios.get(route('admin.total-per-month-by-year.user'));
-    if ([200,201].includes(status)) {
-      resolve(data || 0);
+const onGetTotalUserPerMothByYear = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const {data, status} = await axios.get(route('admin.total-per-month-by-year.user'));
+      if ([200,201].includes(status)) {
+        resolve(data || 0);
+      }
+    } catch (error) {
+      console.log('error', error?.response?.data?.message || error)
+      resolve(0);
     }
-  } catch (error) {
-    console.log('error', error?.response?.data?.message || error)
-    resolve(0);
-  }
-});
+  });
+}
 
 onMounted(async() => {
-  const [product, merchant, user] = await Promise.all([
-    onGetTotalProductPerMothByYear,
-    onGetTotalMerchantPerMothByYear,
-    onGetTotalUserPerMothByYear,
-  ]);
+  if (canView('line-chart-product')) {
+    const product = await onGetTotalProductPerMothByYear();
+    let data = Object.values(product) || [];
+    chartData.series.push({
+      name: "Products",
+      data: data,
+    });
+  }
 
-  console.log('product', Object.values(product))
-  console.log('merchant', merchant)
-  console.log('user', user)
+  if (canView('line-chart-merchant')) {
+    const merchant = await onGetTotalMerchantPerMothByYear();
+    let data = Object.values(merchant) || [];
+    chartData.series.push({
+      name: "Merchants",
+      data: data,
+    });
+  }
 
-  chartData.series[0].data = Object.values(user) || [];
-  chartData.series[1].data = Object.values(merchant) || [];
-  chartData.series[2].data = Object.values(product) || [];
+  if (canView('line-chart-user')) {
+    const user = await onGetTotalUserPerMothByYear();
+    let data = Object.values(user) || [];
+    chartData.series.push({
+      name: "Users",
+      data: data,
+    });
+  }
+
+  // chartData.series[0].data = Object.values(user) || [];
+  // chartData.series[1].data = Object.values(merchant) || [];
+  // chartData.series[2].data = Object.values(product) || [];
+
+  // {
+  //     name: "Users",
+  //     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   },
+  //   {
+  //     name: "Merchants",
+  //     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   },
+  //   {
+  //     name: "Products",
+  //     data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  //   },
 
 })
 </script>
