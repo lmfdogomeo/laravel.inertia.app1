@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Product\ApiCountProductController;
 use App\Http\Controllers\Api\Product\ApiGetProductController;
+use App\Http\Controllers\Api\Product\ApiPerMonthProductController;
 use App\Http\Controllers\Api\Product\ApiSelectProductController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\ProductCategoryController;
@@ -30,6 +32,11 @@ Route::prefix('auth')->group(function () {
 Route::group(["prefix" => 'products', "middleware" => 'auth:sanctum'], function() {
     Route::get("", ApiGetProductController::class)->name("api.product.get");
     Route::get("{uuid}", ApiSelectProductController::class)->name("api.product.select");
+
+    Route::group(["prefix" => 'data'], function() {
+        Route::get("count", ApiCountProductController::class)->name("api.product.count");
+        Route::get("per-month-by-year", ApiPerMonthProductController::class)->name("api.product.perMonth");
+    });
 });
 
 Route::group(['middleware' => 'throttle:api'], function () {

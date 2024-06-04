@@ -85,6 +85,37 @@ class ApiProductRepository extends BaseRepository implements ApiProductRepositor
         return null;
     }
 
+    public function count(int $merchantId = null): int
+    {
+        $data = $this->query->when(!empty($merchantId), function($query) use($merchantId) {
+            $query->where('merchant_id', "=", $merchantId);
+        })->count();
+
+        return $data;
+    }
+
+    public function dataPerMonthByYear($year, $merchantId = null): array
+    {
+        $totals = $this->query->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+            ->whereYear('created_at', $year)
+            ->when(!empty($merchantId), function($query) use($merchantId) {
+                $query->where('merchant_id', "=", $merchantId);
+            })
+            ->groupBy('month')
+            ->pluck('total', 'month')
+            ->toArray();
+
+        // Initialize an array with 0 for each month
+        $monthlyTotals = array_fill(1, 12, 0);
+
+        // Merge the results with the initialized array
+        foreach ($totals as $month => $total) {
+            $monthlyTotals[$month] = $total;
+        }
+
+        return $monthlyTotals;
+    }
+
     public function where($column)
     {
         $this->query->where($column);
