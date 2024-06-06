@@ -44,7 +44,7 @@ const handleLogout = () => {
       </span>
 
       <span class="w-12 h-12 rounded-full">
-        <img :src="user.profile_photo_url" alt="User" class="round" />
+        <img :src="user.profile_photo_url" alt="User" class="rounded-full" />
         <!-- <img src="@/assets/images/user/user-01.png" alt="User" /> -->
       </span>
 

@@ -66,6 +66,10 @@ Route::middleware([
         return Inertia::render('TailAdmin/ProfileView');
     })->name('profile');
 
+    Route::get('/profile/settings', function () {
+        return Inertia::render('Admin/Profile/ProfileSettingsView');
+    })->name('profile.settings');
+
     Route::get('/forms/form-elements', function () {
         return Inertia::render('TailAdmin/Forms/FormElementsView');
     })->name('form.elements');
