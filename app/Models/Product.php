@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasUuid;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -48,5 +49,10 @@ class Product extends Model
 
     public function images() {
         return $this->hasMany(ProductImage::class, "product_id", "id");
+    }
+
+    public function scopeOwn(Builder $query) {
+        $merchantId = auth()->user()->merchantUser?->merchant->id;
+        return $query->where('merchant_id', $merchantId);
     }
 }

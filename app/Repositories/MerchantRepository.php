@@ -43,11 +43,14 @@ class MerchantRepository implements MerchantRepositoryInterface
         return $this->query->with($relationships)->withCount($withCounts)->where('uuid', '=', $uuid)->firstOrFail();
     }
 
-    public function paginate(int $size, array $filters = [], array $relationships = [], array $withCounts = []): Paginator
+    public function paginate(int $size, array $filters = [], array $relationships = [], array $withCounts = [], bool $withCountProduct = false): Paginator
     {
         return $this->query
         ->when(!empty($withCounts), function($query) use($withCounts) {
             $query->withCount($withCounts);
+        })
+        ->when($withCountProduct, function ($query) {
+            $query->withCountProducts();
         })
         ->paginate($size);
     }

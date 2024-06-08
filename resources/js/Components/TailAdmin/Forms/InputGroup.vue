@@ -9,7 +9,8 @@ const { label, type, placeholder, customClasses, required, modelValue, inputClas
     type: Boolean,
     default: false
   },
-  disabled: [String, Boolean, null]
+  disabled: [String, Boolean, null],
+  step: [Number, String]
 });
 
 const model = defineModel();
@@ -28,6 +29,7 @@ const model = defineModel();
       :class="inputClass || ''"
       v-model="model"
       :disabled="disabled"
+      :step="step"
     />
 
     <slot name="error"></slot>

@@ -44,6 +44,7 @@ class UpdateProductRequest extends BaseRequest
             // "rate" => "required|integer|max:10",
             "category_id" => "required|string|exists:product_categories,uuid",
             "merchant_id" => "required|string|exists:merchants,uuid",
+            "images.*" => 'image|mimes:jpeg,jpg,png,gif,svg|max:2048',
         ];
     }
 

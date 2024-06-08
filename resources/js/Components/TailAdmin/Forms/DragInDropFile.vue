@@ -1,32 +1,142 @@
 <script setup>
-const { onChange, disabled } = defineProps({
+import Confirmation from "@/Helpers/Confirmation";
+import Notification from "@/Helpers/Notification";
+import { useForm } from "@inertiajs/vue3";
+import { computed, onMounted, ref } from "vue";
+
+const fileInput = ref(null);
+const photoPreview = ref(null);
+const { onChange, disabled, defaultValue, isUpdate, uuid } = defineProps({
   onChange: Function,
-  disabled: [String, Boolean, null]
-})
+  disabled: [String, Boolean, null],
+  defaultValue: String,
+  isUpdate: Boolean,
+  uuid: String
+});
 
 const handleFileChange = (e) => {
-  if (typeof onChange === 'function' && !disabled) {
+  console.log("fileInput", fileInput.value?.files);
+  if (typeof onChange === "function" && !disabled) {
     onChange(e.target.files);
   }
+
+  updatePhotoPreview();
+};
+
+const updatePhotoPreview = () => {
+  const photo = fileInput.value?.files[0];
+
+  if (!photo) {
+    photoPreview.value = null;
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    photoPreview.value = e.target.result;
+  };
+
+  reader.readAsDataURL(photo);
+};
+
+const handleRemoveImage = () => {
+  if (isUpdate) {
+    Confirmation.confirm({
+      title: "Confirmation",
+      type: "warning",
+      text: "Are you sure you want to delete this image?",
+      cancelButtonText: "Cancel",
+      confirmButtonText: "Continue",
+    }).then((result) => {
+      if (result.isConfirm) {
+        onDeleteImage();
+      }
+    });
+  }
+  else {
+    photoPreview.value = null;
+    fileInput.value = null;
+    if (typeof onChange === "function") {
+      onChange(null);
+    }
+  }
 }
+
+const onDeleteImage = () => {
+  useForm({ _method: "DELETE" }).post(route("admin.product-image.destroy", { uuid: uuid }), {
+    preserveScroll: true,
+    onSuccess: (response) => {
+      Notification.fire({
+        title: "Success",
+        message:
+          response.props.flash.message ||
+          "Product has been successfully deleted",
+        duration: 5000,
+      });
+    },
+    onError: (error) => {
+      console.log("onError", error);
+    },
+  });
+};
+
+const reset = () => {
+  handleRemoveImage();
+}
+
+const hasFile = computed(() => {
+  return photoPreview.value ? true : false;
+});
+
+onMounted(() => {
+  if (defaultValue) {
+    photoPreview.value = defaultValue;
+  }
+})
+
+defineExpose({
+  reset
+});
 </script>
 
 <template>
+  <div v-if="photoPreview" class="relative border-2 group preview">
+    <div
+      class="relative flex items-center w-full p-0 m-auto h-30 max-w-30 bg-white/20 backdrop-blur sm:h-44 sm:max-w-44"
+    >
+      <div class="relative drop-shadow-2" v-show="photoPreview">
+        <img :src="photoPreview" alt="profile" class="w-full h-full" />
+      </div>
+    </div>
+    <label
+      for="profile"
+      class="absolute items-center justify-center invisible px-2 py-1 text-sm text-white cursor-pointer bottom-1 right-1 group-hover:visible preview:block bg-danger hover:bg-red"
+      @click="handleRemoveImage"
+    >
+      <i class="fas fa-times"></i>
+      Remove
+    </label>
+  </div>
   <div
     id="FileUpload"
     class="relative block cursor-pointer appearance-none rounded border border-dashed border-[#E2E1E1] bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5"
-    :class="{'!cursor-not-allowed': disabled}"
+    :class="{ '!cursor-not-allowed': disabled }"
+    v-if="!photoPreview"
   >
     <input
       type="file"
-      accept="image/*"
+      accept=".png,.jpg,.jpeg"
       class="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer"
-      :class="{'!cursor-not-allowed': disabled}"
+      :class="{ '!cursor-not-allowed': disabled }"
       @change="handleFileChange"
-      multiple
       :disabled="disabled"
+      ref="fileInput"
     />
-    <div class="flex flex-col items-center justify-center space-y-3">
+    <div
+      class="flex flex-col items-center justify-center space-y-3"
+      v-if="!hasFile"
+    >
       <span
         class="flex items-center justify-center w-10 h-10 bg-white border rounded-full border-stroke dark:border-strokedark dark:bg-boxdark"
       >
@@ -60,8 +170,34 @@ const handleFileChange = (e) => {
       <p class="text-sm font-medium">
         <span class="text-primary">Browse Image</span>
       </p>
-      <!-- <p class="mt-1.5 text-sm font-medium">SVG, PNG, JPG or GIF</p>
-      <p class="text-sm font-medium">(max, 800 X 800px)</p> -->
+      <p class="mt-1.5 text-sm font-medium">PNG, JPG</p>
+      <!-- <p class="text-sm font-medium">(max, 800 X 800px)</p> -->
+    </div>
+
+    <div v-if="false">
+      <div class="bg-white/20 backdrop-blur">
+        <div class="drop-shadow-2" v-show="photoPreview">
+          <img :src="photoPreview" alt="profile" class="w-auto h-[10rem]" />
+          <!-- <label
+            for="profile"
+            class="absolute bottom-0 right-0 flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full bg-primary text-white hover:bg-opacity-90 sm:bottom-2 sm:right-2"
+          >
+            <CameraSvgIcon />
+            <input type="file" name="profile" id="profile" class="sr-only" 
+              @change="updatePhotoPreview"
+            />
+          </label> -->
+        </div>
+
+        <!-- <div class="drop-shadow-2" v-show="photoPreview">
+          <div class="">
+            <span
+              class="block w-full h-full bg-center bg-no-repeat bg-cover"
+              :style="'background-image: url(\'' + photoPreview + '\');'"
+            ></span>
+          </div>
+        </div> -->
+      </div>
     </div>
   </div>
 </template>

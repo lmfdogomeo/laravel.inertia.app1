@@ -9,18 +9,24 @@ use App\Http\Requests\Product\DeleteProductRequest;
 use App\Http\Requests\Product\GetProductRequest;
 use App\Http\Requests\Product\SelectProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
+use App\Repositories\Contracts\FileRepositoryInterface;
 use App\Repositories\Contracts\MerchantRepositoryInterface;
 use App\Repositories\Contracts\ProductCategoryRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Services\Product\Facade\ProductAction;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class ProductController extends Controller
 {
-    public function __construct(protected ProductRepositoryInterface $repository, protected MerchantRepositoryInterface $merchantRepository, protected ProductCategoryRepositoryInterface $categoryRepository)
-    {
-        
-    }
+    public function __construct(
+        protected ProductRepositoryInterface $repository, 
+        protected MerchantRepositoryInterface $merchantRepository, 
+        protected ProductCategoryRepositoryInterface $categoryRepository,
+        protected FileRepositoryInterface $fileRepository,
+    ){}
     /**
      * Display a listing of the resource.
      */
@@ -51,7 +57,26 @@ class ProductController extends Controller
             }
         }
         
-        $data = $this->repository->paginate($request->size ?? 5, $filters);
+        $data = $this->repository->paginate($request->size ?? 5, $filters, ['images' => function($query) {
+            $query->where('main_display', 1);
+        }], []);
+
+        // Modify each record to include the full URL for the image path
+        $data->getCollection()->transform(function ($item) {
+            if (isset($item->images[0])) {
+                $item->image_path = $item->images[0]->image_path;
+            } else {
+                $name = trim(collect(explode(' ', $item->product_name))->map(function ($segment) {
+                    return mb_substr($segment, 0, 1);
+                })->join(' '));
+        
+                $item->image_path = 'https://ui-avatars.com/api/?name='.urlencode($name).'&color=7F9CF5&background=EBF4FF';
+            }
+
+            unset($item->images);
+
+            return $item;
+        });
 
         return Inertia::render("Admin/Product/ProductList", [
             "merchant_uuid" => $merchantUuid,
@@ -76,15 +101,30 @@ class ProductController extends Controller
      */
     public function store(CreateProductRequest $request)
     {
-        $category = $this->categoryRepository->findByUuid($request->category_id);
-        $merchant = $this->merchantRepository->findByUuid($request->merchant_id);
+        // $category = $this->categoryRepository->findByUuid($request->category_id);
+        // $merchant = $this->merchantRepository->findByUuid($request->merchant_id);
 
-        $request->merge([
-            "category_id" => $category->id,
-            "merchant_id" => $merchant->id
-        ]);
+        // $request->merge([
+        //     "category_id" => $category->id,
+        //     "merchant_id" => $merchant->id
+        // ]);
 
-        $product = $this->repository->create($request->parameters());
+        // $product = $this->repository->create($request->parameters());
+
+        // // $uploadedFiles = [];
+        // // $files = $request->file('images');
+
+        // // foreach ($files as $file) {
+        // //     // Save each file to the 'uploads' directory and get the path
+        // //     $path = $file->store('uploads/products');
+        // //     $uploadedFiles[] = $path;
+        // // }
+
+        $product = ProductAction::action($request->parameters())
+            ->setCategory($request->category_id)
+            ->setMerchant($request->merchant_id)
+            ->uploadImages($request->file('images'))
+            ->create();
 
         return redirect()->back()
             ->with('code', '200')
@@ -108,7 +148,7 @@ class ProductController extends Controller
             ];
         }
 
-        $product = $this->repository->findByUuid($uuid, ['category', 'merchant'], [], $filters);
+        $product = $this->repository->findByUuid($uuid, ['category', 'merchant', 'images'], [], $filters);
         return Inertia::render("Admin/Product/ProductForm", [
             'data' => $product,
             "state" => "update",
@@ -129,30 +169,41 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, string $uuid)
     {
-        $merchantUuid = $request->query('merchant');
+        // $merchantUuid = $request->query('merchant');
 
-        $category = $this->categoryRepository->findByUuid($request->category_id);
-        $merchant = $this->merchantRepository->findByUuid($request->merchant_id);
-        $request->merge([
-            "category_id" => $category->id,
-            "merchant_id" => $merchant->id
-        ]);
+        // $category = $this->categoryRepository->findByUuid($request->category_id);
+        // $merchant = $this->merchantRepository->findByUuid($request->merchant_id);
+        // $request->merge([
+        //     "category_id" => $category->id,
+        //     "merchant_id" => $merchant->id
+        // ]);
 
-        $filters = [];
-        if (!empty($merchantUuid)) {
-            $merchant = $this->merchantRepository->findByUuid($merchantUuid);
-            $filters = [
-                ["merchant_id", "=", $merchant->id]
-            ];
+        // $filters = [];
+        // if (!empty($merchantUuid)) {
+        //     $merchant = $this->merchantRepository->findByUuid($merchantUuid);
+        //     $filters = [
+        //         ["merchant_id", "=", $merchant->id]
+        //     ];
+        // }
+
+        // $product = $this->repository->update($uuid, $request->parameters(), $filters);
+
+        try {
+            $product = ProductAction::action($request->parameters())
+                ->setUuid($uuid)
+                ->setCategory($request->category_id)
+                ->setMerchant($request->merchant_id)
+                ->uploadImages($request->file('images'))
+                ->update();
+
+            return redirect()->back()
+                ->with('code', '200')
+                ->with('status', 'success')
+                ->with('message', 'Product updated successfully!')
+                ->with('data', $product);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
-
-        $product = $this->repository->update($uuid, $request->parameters(), $filters);
-
-        return redirect()->back()
-            ->with('code', '200')
-            ->with('status', 'success')
-            ->with('message', 'Product updated successfully!')
-            ->with('data', $product);
     }
 
     /**
@@ -217,5 +268,15 @@ class ProductController extends Controller
             "merchant_uuid" => "",
             "paginate" => $data,
         ]);
+    }
+
+    public function deleteImage(Request $request, string $uuid)
+    {
+        $this->fileRepository->delete($uuid);
+
+        return redirect()->back()
+                ->with('code', '200')
+                ->with('status', 'success')
+                ->with('message', 'Image deleted successfully!');
     }
 }

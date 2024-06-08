@@ -58,6 +58,9 @@ class ProductRepository implements ProductRepositoryInterface
                     $query->where($value[0], $value[1], $value[2]);
                 }
             })
+            ->when(!empty($relationships), function($query) use($relationships) {
+                $query->with($relationships);
+            })
             ->paginate($size)
             ->withQueryString();
     }

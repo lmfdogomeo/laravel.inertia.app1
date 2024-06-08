@@ -159,6 +159,8 @@ onMounted(() => {
   if (route().params?.size) {
     perPage.value = route().params?.size || 5;
   }
+
+  console.log('page', page.props)
 })
 
 </script>
@@ -342,12 +344,12 @@ onMounted(() => {
               class="px-4 py-5 pl-6 border border-t-0 border-b-0 border-l-0 xl:pl-6 border-stroke"
             >
               <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <!-- <div class="h-12.5 w-15 rounded-md">
+                <div class="h-12.5 w-15 rounded-md">
                   <img
-                    :src="product.imageSrc"
-                    :alt="`Product: ${product.name}`"
+                    :src="product.image_path"
+                    :alt="`Product: ${product.product_name}`"
                   />
-                </div> -->
+                </div>
                 <p class="text-sm font-medium text-black dark:text-white">
                   {{ product.product_name }}
                 </p>

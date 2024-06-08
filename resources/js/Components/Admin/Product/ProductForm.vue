@@ -2,7 +2,7 @@
 import DefaultCard from "@/Components/TailAdmin/Forms/DefaultCard.vue";
 import InputGroup from "@/Components/TailAdmin/Forms/InputGroup.vue";
 import SelectGroup from "@/Components/TailAdmin/Forms/SelectGroup/SelectGroup.vue";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { Link, router, useForm, usePage } from "@inertiajs/vue3";
 import ButtonDefault from "@/Components/TailAdmin/Buttons/ButtonDefault.vue";
 import DragInDropFile from "@/Components/TailAdmin/Forms/DragInDropFile.vue";
@@ -40,25 +40,28 @@ const form = useForm({
   rate: "",
   category_id: "",
   merchant_id: "",
-  image1: null,
-  image2: null,
-  image3: null,
-  image4: null,
-  _method: "post"
+  images: [],
+  _method: "POST"
 });
+const productImages = reactive([]);
+const fileInput = ref(null);
 
 const handleFileChange = (file, index) => {
-  if (index === 0) {
-    form.image1 = file;
+  console.log('file', file?.[0] || null)
+  console.log('index', index)
+
+  if (file === null) {
+    if (typeof productImages[index] !== 'undefined') {
+      productImages.splice(index, 1);
+    }
   }
-  else if (index === 1) {
-    form.image2 = file;
-  }
-  else if (index === 2) {
-    form.image3 = file;
-  }
-  else if (index === 3) {
-    form.image4 = file;
+  else {
+    if (typeof productImages[index] === 'undefined') {
+      productImages.push(file?.[0] || null);
+    }
+    else {
+      productImages[index] = file?.[0] || null;
+    }
   }
 };
 
@@ -67,15 +70,17 @@ const handleSubmitForm = () => {
   form.sale_price = Number(form.sale_price || "0").toFixed(2);
 
   let endpoint = route('admin.products.store', hasMerchant.value ? { merchant: hasMerchant.value } : {});
-  let method = "post";
   if (isUpdate.value) {
     endpoint = route('admin.products.update', { product: uuid.value, ...hasMerchant.value ? { merchant: hasMerchant.value } : {} });
-    method = "put";
+    form._method = "PUT";
   }
 
-  form[method](endpoint, {
+  const dataTransfer = new DataTransfer();
+  productImages.forEach(file => dataTransfer.items.add(file));
+  form.images = dataTransfer.files;
+
+  form.post(endpoint, {
     preserveScroll: true,
-    forceFormData: true,
     onSuccess: (response) => {
       Notification.fire({
         title: "Success",
@@ -88,6 +93,8 @@ const handleSubmitForm = () => {
       if (!isUpdate.value) {
         form.reset();
         form.merchant_id = hasMerchant.value || null;
+
+        fileInput.value?.forEach(file => file.reset())
       }
     },
     onError: (error) => {
@@ -157,6 +164,14 @@ const hasMerchant = computed(() => {
   return page.props?.merchant_uuid || null;
 })
 
+const images = computed(() => {
+  let imageList = page.props.data?.images || [];
+  for(let i = imageList.length; i < 4; i++) {
+    imageList.push(i);
+  }
+  return imageList;
+})
+
 const isUpdate = computed(() => page.props.state === "update");
 const uuid = computed(() => page.props.data?.uuid || null);
 
@@ -195,17 +210,8 @@ onMounted(() => {
         <DefaultCard cardTitle="Product Images">
           <div class="p-6.5">
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div class="">
-                <DragInDropFile :onChange="(e) => handleFileChange(e, 0)" :disabled="!canEdit('product') && !canAdd('product')"/>
-              </div>
-              <div class="">
-                <DragInDropFile :onChange="(e) => handleFileChange(e, 1)" :disabled="!canEdit('product') && !canAdd('product')"/>
-              </div>
-              <div class="">
-                <DragInDropFile :onChange="(e) => handleFileChange(e, 2)" :disabled="!canEdit('product') && !canAdd('product')"/>
-              </div>
-              <div class="">
-                <DragInDropFile :onChange="(e) => handleFileChange(e, 3)" :disabled="!canEdit('product') && !canAdd('product')"/>
+              <div class="" v-for="(index) in images" :key="index">
+                <DragInDropFile :isUpdate="isUpdate" :uuid="index?.uuid" :defaultValue="index?.image_path" ref="fileInput" :onChange="(e) => handleFileChange(e, index)" :disabled="!canEdit('product') && !canAdd('product')"/>
               </div>
             </div>
           </div>
@@ -321,6 +327,7 @@ onMounted(() => {
                 customClasses="w-full xl:w-1/2"
                 v-model="form.price"
                 :disabled="!canEdit('product') && !canAdd('product')"
+                step="0.01"
               >
                 <template v-slot:error>
                   <InputError :message="form.errors.price" />
@@ -334,6 +341,7 @@ onMounted(() => {
                 customClasses="w-full xl:w-1/2"
                 v-model="form.sale_price"
                 :disabled="!canEdit('product') && !canAdd('product')"
+                step="0.01"
               >
                 <template v-slot:error>
                   <InputError :message="form.errors.sale_price" />

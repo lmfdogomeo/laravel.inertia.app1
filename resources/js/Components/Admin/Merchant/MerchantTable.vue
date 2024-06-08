@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { Link, router, useForm, usePage } from "@inertiajs/vue3";
 
 import DeleteSvgIcon from "@/assets/svg/DeleteSvgIcon.vue";
@@ -63,6 +63,10 @@ const from = computed(() => page.props.paginate?.from || 0);
 const to = computed(() => page.props.paginate?.to || 0);
 const total = computed(() => page.props.paginate?.total || 0);
 const links = computed(() => page.props.paginate?.links || []);
+
+onMounted(() => {
+  //
+})
 
 </script>
 

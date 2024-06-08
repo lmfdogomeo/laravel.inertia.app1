@@ -37,7 +37,7 @@ class MerchantController extends Controller
             });
         }
 
-        $data = $query->paginate($request->size ?? 5, [], [], ['products']);
+        $data = $query->paginate($request->size ?? 5, [], [], [], true);
         return Inertia::render('Admin/Merchant/MerchantList', [
             'paginate' => $data,
             'state' => 'create'

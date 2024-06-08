@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasUuid;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -34,5 +35,9 @@ class Merchant extends Model
 
     public function products() {
         return $this->hasMany(Product::class, "merchant_id", "id");
+    }
+
+    public function scopeWithCountProducts(Builder $query) {
+        return $query->withCount('products');
     }
 }

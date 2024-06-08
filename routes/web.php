@@ -41,6 +41,7 @@ Route::middleware([
 
     Route::get("/products/filter", [ProductController::class, 'filter'])->name('admin.products.filter');
     Route::get("/merchant/search", [MerchantController::class, 'search'])->name('admin.accounts.api-search');
+    Route::delete("/products/images/{uuid}", [ProductController::class, 'deleteImage'])->name('admin.product-image.destroy');
 
     Route::resource("/merchants", MerchantController::class)->names('admin.merchants');
     Route::resource("/products", ProductController::class)->names('admin.products');
