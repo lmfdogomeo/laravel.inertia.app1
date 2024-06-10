@@ -47,6 +47,7 @@ return [
     */
 
     'expiration' => null,
+    // 'expiration' => env('SANCTUM_EXPIRATION_MIN', null) ? now()->addYears(10) : null,
 
     /*
     |--------------------------------------------------------------------------
