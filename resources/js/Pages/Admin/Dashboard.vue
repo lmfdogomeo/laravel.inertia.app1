@@ -7,6 +7,7 @@ import LineChart from '@/Components/Admin/Dashboard/LineChart.vue'
 import DefaultLayout from '@/Layouts/DefaultLayout.vue'
 import { useSessionStore } from '@/stores/session'
 import { nextTick, onMounted, ref } from 'vue'
+import ColyseusComponent from "@/Components/Admin/ColyseusComponent.vue";
 
 const ready = ref(false);
 const { initStore } = useSessionStore();
@@ -24,7 +25,9 @@ onMounted(() => {
 
 <template>
   <DefaultLayout v-if="ready">
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5"
+    <ColyseusComponent />
+    
+    <!-- <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5"
       v-if="canView('total-merchant') || canView('total-product') || canView('total-user')"
     >
       <TotalMerchant v-if="canView('total-merchant')"/>
@@ -36,6 +39,6 @@ onMounted(() => {
       <AnalyticChart v-if="canView('analytic-chart')" />
 
       <LineChart v-if="canView('line-chart-user') || canView('line-chart-merchant') || canView('line-chart-product')" />
-    </div>
+    </div> -->
   </DefaultLayout>
 </template>

@@ -1,0 +1,445 @@
+<template>
+  <div class="absolute left-[50%] top-[50%]" v-if="counter > 0">
+    <div>
+      <span class="text-[5rem] font-bold">
+        {{ counter || 0 }}
+      </span>
+    </div>
+  </div>
+
+  <div class="mb-4.5 flex flex-col gap-6 xl:flex-row">
+    <InputGroup
+      label="Token"
+      type="text"
+      placeholder="Input token here"
+      customClasses="mb-4.5 w-1/2"
+      v-model="token"
+    />
+
+    <InputGroup
+      label="Room Id"
+      type="text"
+      placeholder="Room ID"
+      customClasses="mb-4.5"
+      v-model="roomId"
+    />
+
+    <PrimaryButton
+      @click="onJoinRoom"
+      class="flex justify-center w-50 p-3 mx-1 font-medium rounded-3xl bg-[orange] text-gray hover:bg-opacity-90 disabled:bg-opacity-70"
+    >
+      Join
+    </PrimaryButton>
+  </div>
+
+  <div class="font-sans text-white bg-gray-800">
+    <div class="container p-4 mx-auto">
+      <h1 class="mb-4 text-3xl font-bold text-center">Lucky 9 Game Table</h1>
+
+      <div class="grid grid-cols-3 gap-4">
+        <!-- Player Cards -->
+        <div class="p-4 bg-gray-700 border-2 rounded-lg">
+          <h2 class="mb-2 text-xl font-semibold">Player 1</h2>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+              <img src="card1.png" alt="Card 1" class="w-16 h-24 mr-2" />
+              <img src="card2.png" alt="Card 2" class="w-16 h-24" />
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold">Total: 9</p>
+              <p class="text-sm">Chips: 700</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 bg-gray-700 border-2 rounded-lg">
+          <h2 class="mb-2 text-xl font-semibold">Player 2</h2>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+              <img src="card1.png" alt="Card 1" class="w-16 h-24 mr-2" />
+              <img src="card2.png" alt="Card 2" class="w-16 h-24" />
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold">Total: 6</p>
+              <p class="text-sm">Chips: 1200</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 bg-gray-700 border-2 rounded-lg">
+          <h2 class="mb-2 text-xl font-semibold">Player 3</h2>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+              <img src="card1.png" alt="Card 1" class="w-16 h-24 mr-2" />
+              <img src="card2.png" alt="Card 2" class="w-16 h-24" />
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold">Total: 5</p>
+              <p class="text-sm">Chips: 500</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 mt-6 bg-gray-700 border-2 rounded-lg">
+        <h2 class="mb-2 text-xl font-semibold text-center">Banker</h2>
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center">
+            <img src="card1.png" alt="Card 1" class="w-16 h-24 mr-2" />
+            <img src="card2.png" alt="Card 2" class="w-16 h-24" />
+          </div>
+          <div class="text-right">
+            <p class="text-lg font-bold">Total: 8</p>
+            <p class="text-sm">Chips: 1000</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import {
+  colyseusService,
+  getAvailableRooms,
+} from "@/Services/ColyseusService.js";
+import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
+import PrimaryButton from "../PrimaryButton.vue";
+import { usePage } from "@inertiajs/vue3";
+import InputGroup from "../TailAdmin/Forms/InputGroup.vue";
+
+const page = usePage();
+const room = ref(null);
+const createdRoom = ref(null);
+const messages = ref([]);
+const roomState = ref("");
+const hasReconnectSession = ref(false);
+const players = ref([]);
+const potAmount = ref(0);
+const events = ref([]);
+const hasCard = ref(false);
+const showAction = ref(false);
+const cards = ref([]);
+const counter = ref(0);
+const token = ref("");
+const roomId = ref("");
+
+const userUuid = computed(() => {
+  return page.props.auth?.user?.uuid || "";
+});
+
+const me = computed((playerUuid = "") => {
+  return userUuid.value === playerUuid;
+});
+
+const playerList = computed(() => {
+  const data = createdRoom.value?.state?.players || [];
+  console.log("data", data);
+  return [];
+});
+
+hasReconnectSession.value = localStorage.getItem("reconnection-token")
+  ? true
+  : false;
+
+const onJoinRoom = async () => {
+  createdRoom.value = await colyseusService.joinById(roomId.value, {
+    token: token.value,
+  });
+
+  createdRoom.value?.state.listen("seats", (seats) => {
+    console.log("seats", seats);
+  });
+
+  createdRoom.value?.state.listen("seats", (seats) => {
+    console.log("seats", seats);
+  });
+};
+
+const leaveRoom = async () => {
+  console.log("leave room");
+  createdRoom.value.leave();
+  resetTokens();
+};
+
+const resetTokens = () => {
+  createdRoom.value = null;
+  localStorage.removeItem("reconnection-token");
+  localStorage.removeItem("ws-room-id");
+  localStorage.removeItem("ws-session");
+  localStorage.removeItem("ws-id");
+  hasReconnectSession.value = false;
+};
+
+const reconnectRoom = async () => {
+  try {
+    let sessionId = localStorage.getItem("ws-session");
+    let reconnectionToken = localStorage.getItem("reconnection-token");
+
+    createdRoom.value = await colyseusService.reconnect(reconnectionToken, {
+      token: token.value,
+    });
+
+    onJoinToRoom(createdRoom.value);
+  } catch (error) {
+    console.log("error", error);
+    resetTokens();
+  }
+};
+
+const connectRoom = async () => {
+  try {
+    createdRoom.value = await colyseusService.joinRoom("normal_room", {
+      token: token.value,
+    });
+
+    onJoinToRoom(createdRoom.value);
+  } catch (error) {
+    console.log("error", error);
+    resetTokens();
+  }
+};
+
+const onJoinToRoom = async (room) => {
+  try {
+    console.log("joined successfully", room);
+
+    if (!room) return;
+
+    localStorage.setItem("reconnection-token", room?.reconnectionToken || "");
+    localStorage.setItem("ws-room-id", room?.roomId || "");
+    localStorage.setItem("ws-session", room?.sessionId || "");
+    localStorage.setItem("ws-id", room?.id || "");
+    // createdRoom.send("type", "sample")
+
+    // createdRoom.onMessage("message_type", (msg) => {
+    //   console.log('sample', msg)
+    //   messages.value.push(msg);
+    // });
+
+    room.onMessage("waiting", (msg) => {
+      console.log("Waiting: ", msg);
+      roomState.value = "waiting";
+
+      events.value.push("Waiting Other Player");
+    });
+
+    room.onMessage("tableCreated", (msg) => {
+      console.log("Table Created: ", msg);
+      roomState.value = "start";
+
+      events.value.push("Table Created");
+    });
+
+    room.onMessage("playerLeave", (params) => {
+      console.log("Player Leave: ", params);
+    });
+
+    room.onMessage("youLeave", (params) => {
+      console.log("You Leave: ", params);
+    });
+
+    room.onMessage("playerReconnected", (params) => {
+      console.log("Player Reconnected: ", params);
+    });
+
+    room.onMessage("playerPlaceBet", (msg) => {
+      console.log("Player place bet: ", msg);
+      messages.value.push(msg);
+    });
+
+    room.onMessage("playerInTable", (params) => {
+      console.log("Player In Table: ", params);
+      players.value = params.data?.players || [];
+    });
+
+    // ================ Testing ======
+    room.onMessage("startRound", (msg) => {
+      console.log("startRound ", msg);
+      events.value.push("Start Round");
+    });
+
+    room.onMessage("collectAllPot", (msg) => {
+      console.log("Collect All Pot: ", msg);
+      events.value.push("Collect All Pot");
+    });
+
+    room.onMessage("submitPot", (msg) => {
+      console.log("Submit Pot: ", msg);
+      events.value.push("Submit Pot");
+    });
+
+    room.onMessage("startBetting", (msg) => {
+      console.log("Start Betting", msg);
+      events.value.push("Start Betting");
+    });
+
+    room.onMessage("collectAllBet", (msg) => {
+      console.log("Collect All Bet", msg);
+      events.value.push("Collect All Bet");
+    });
+
+    room.onMessage("submitBet", (msg) => {
+      console.log("Submit Bet", msg);
+      events.value.push("Submit Bet");
+    });
+
+    room.onMessage("distributeCard", (params) => {
+      console.log("Distribute Card", params);
+      events.value.push("Distribute Card");
+
+      cards.value = params?.cards || [];
+
+      hasCard.value = true;
+    });
+
+    room.onMessage("showBankerCard", (msg) => {
+      console.log("Banker Show Card: ", msg);
+      events.value.push("Banker Show Card: " + msg);
+    });
+
+    room.onMessage("showCard", (params) => {
+      console.log("Show Card: ", params);
+      events.value.push("Card: " + params?.cards?.toString());
+
+      showAction.value = true;
+      // cards.value = params?.cards || [];
+    });
+
+    room.onMessage("waitingBankerAction", (msg) => {
+      console.log("Waiting Banker Action: ", msg);
+      events.value.push("Waiting Banker Action: " + msg);
+    });
+
+    room.onMessage("declaration", (msg) => {
+      console.log("Winner/Lose Declaration: ", msg);
+      events.value.push("Winner/Lose Declaration: " + msg);
+    });
+
+    room.onMessage("distributeWinLosePrice", (msg) => {
+      console.log("Distribute Prices: ", msg);
+      events.value.push("Distribute Prices: " + msg);
+    });
+
+    room.onMessage("showRoundResults", (msg) => {
+      console.log("Show Round Results: ", msg);
+      events.value.push("Show Round Results: " + msg);
+    });
+
+    // ============ END =========
+
+    room.onMessage("betExists", (msg) => {
+      console.log("Already: ", msg);
+    });
+
+    room.state.listen("potAmount", (amount) => {
+      potAmount.value = amount || 0;
+    });
+
+    room.state.listen("countdown", (value) => {
+      console.log("counter", value);
+      counter.value = value;
+      // events.value.push("Count Down: " + counter);
+    });
+
+    room.state.listen("gameStatus", (value) => {
+      console.log("gameStatus", value);
+    });
+
+    room.state.listen("interval", (value) => {
+      console.log("interval", value);
+    });
+
+    // listen players schema
+    room.state.players.onAdd((player, key) => {
+      console.log(player, "has been added at", key);
+    });
+
+    room.state.players.onRemove((player, key) => {
+      console.log(player, "has been remove at", key);
+
+      players.value = players.value.filter(
+        (i) => i.sessionId !== player.sessionId
+      );
+    });
+
+    // room.onMessage("new_player_join", (msg) => {
+    //   console.log("New Player Join: ", msg);
+    //   roomState.value = "start";
+    // });
+
+    // room.onMessage("you_join", (msg) => {
+    //   console.log("You Join: ", msg);
+    //   roomState.value = "start";
+    // });
+
+    // room.onMessage("winner", (params) => {
+    //   console.log("Winner: ", params?.player?.uuid);
+
+    //   const winnerUuid = params?.player?.uuid;
+    //   if (winnerUuid === userUuid) {
+    //     console.log("You win");
+    //   } else {
+    //     console.log("You loss");
+    //   }
+    // });
+
+    // createdRoom.value.onStateChange((state) => {
+    //   console.log("State has changed:", state);
+    // });
+
+    room.onLeave((code) => {
+      console.log("Left the room with code:", code);
+      roomState.value = "";
+    });
+
+    availableRooms();
+  } catch (error) {
+    console.log("error", error);
+    localStorage.removeItem("reconnection-token");
+    localStorage.removeItem("ws-room-id");
+    localStorage.removeItem("ws-session");
+    localStorage.removeItem("ws-id");
+  }
+};
+
+const onPlaceBet = (amount = 0) => {
+  createdRoom.value.send("onPlayerStartBetting", { amount: amount });
+};
+
+const availableRooms = async () => {
+  const rooms = await getAvailableRooms();
+
+  console.log("rooms", rooms);
+};
+
+const showCard = () => {
+  createdRoom.value.send("onPlayerRequestShowCard");
+
+  hasCard.value = false;
+};
+
+const actionHirit = () => {
+  // createdRoom.value.send("onBankerAction", { action: "HIRIT" })
+  createdRoom.value.send("hirit");
+  // showAction.value = false;
+};
+
+const actionGood = () => {
+  // createdRoom.value.send("onBankerAction", { action: "GOODS" })
+  createdRoom.value.send("goods");
+  // showAction.value = false;
+};
+
+onMounted(() => {
+  // room.value?.onMessage("type", (msg) => {
+  //   messages.value.push(msg);
+  // });
+
+  availableRooms();
+});
+</script>
+
+<style scoped>
+/* Add your styles here */
+</style>
