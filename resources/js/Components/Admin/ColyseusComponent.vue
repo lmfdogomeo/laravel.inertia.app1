@@ -455,6 +455,18 @@ const onConsumeReservation = async () => {
     });
   });
 
+  createdRoom.value?.state.seats.onAdd((seats, key) => {
+    console.log(seats, "has been added at", key);
+
+    // add your seats entity to the game world!
+
+    // detecting changes on object properties
+    seats.player.listen("decision", (value, previousValue) => {
+      console.log("value: value",);
+      console.log("previousValue: previousValue",);
+    });
+  });
+
   // createdRoom.value?.state.seats.onChange((value, key) => {
   //   console.log(`Changed: ${key} -> ${value}`, value);
   // });
