@@ -61,14 +61,24 @@
             <div class="flex items-center gap-2">
               <div class="w-16 h-24">
                 <img
-                  :src="getImageUrl(seats.get('1')?.player?.card1, seats.get('1')?.player?.card1?.isRevealedToSelf )"
+                  :src="
+                    getImageUrl(
+                      seats.get('1')?.player?.card1,
+                      seats.get('1')?.player?.card1?.isRevealedToSelf
+                    )
+                  "
                   alt="Card 1"
                   class="w-full h-full"
                 />
               </div>
               <div class="w-16 h-24">
                 <img
-                  :src="getImageUrl(seats.get('1')?.player?.card2, seats.get('1')?.player?.card2?.isRevealedToSelf )"
+                  :src="
+                    getImageUrl(
+                      seats.get('1')?.player?.card2,
+                      seats.get('1')?.player?.card2?.isRevealedToSelf
+                    )
+                  "
                   alt="Card 1"
                   class="w-full h-full"
                 />
@@ -81,11 +91,15 @@
               <p class="text-lg font-bold">
                 BET: {{ seats.get("1")?.bet || 0 }}
               </p>
-              <p class="text-sm">Chips: {{ seats.get("1")?.player?.chips || 0 }}</p>
+              <p class="text-sm">
+                Chips: {{ seats.get("1")?.player?.chips || 0 }}
+              </p>
               <p class="text-sm">
                 Declare: {{ seats.get("1")?.player?.declaration || "" }}
               </p>
-              <p class="text-sm">Card: {{ seats.get("1")?.player?.cardTotal || 0 }}</p>
+              <p class="text-sm">
+                Card: {{ seats.get("1")?.player?.cardTotal || 0 }}
+              </p>
               <p class="text-sm">
                 Lucky 9: {{ seats.get("1")?.player?.isLucky9 || 0 }}
               </p>
@@ -102,14 +116,24 @@
             <div class="flex items-center gap-2">
               <div class="w-16 h-24">
                 <img
-                  :src="getImageUrl(seats.get('2')?.card1, seats.get('2')?.card1?.isRevealedToSelf )"
+                  :src="
+                    getImageUrl(
+                      seats.get('2')?.card1,
+                      seats.get('2')?.card1?.isRevealedToSelf
+                    )
+                  "
                   alt="Card 1"
                   class="w-full h-full"
                 />
               </div>
               <div class="w-16 h-24">
                 <img
-                  :src="getImageUrl(seats.get('2')?.card1, seats.get('2')?.card1?.isRevealedToSelf )"
+                  :src="
+                    getImageUrl(
+                      seats.get('2')?.card1,
+                      seats.get('2')?.card1?.isRevealedToSelf
+                    )
+                  "
                   alt="Card 1"
                   class="w-full h-full"
                 />
@@ -134,20 +158,32 @@
           </div>
         </div>
 
-        <div class="relative p-4 bg-gray-700 border-2 rounded-lg border-[#cb3030f9]">
+        <div
+          class="relative p-4 bg-gray-700 border-2 rounded-lg border-[#cb3030f9]"
+        >
           <h2 class="mb-2 text-xl font-semibold">Seat 3</h2>
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
               <div class="w-16 h-24">
                 <img
-                  :src="getImageUrl(seats.get('3')?.card1, seats.get('3')?.card1?.isRevealedToSelf )"
+                  :src="
+                    getImageUrl(
+                      seats.get('3')?.card1,
+                      seats.get('3')?.card1?.isRevealedToSelf
+                    )
+                  "
                   alt="Card 1"
                   class="w-full h-full"
                 />
               </div>
               <div class="w-16 h-24">
                 <img
-                  :src="getImageUrl(seats.get('3')?.card1, seats.get('3')?.card1?.isRevealedToSelf )"
+                  :src="
+                    getImageUrl(
+                      seats.get('3')?.card1,
+                      seats.get('3')?.card1?.isRevealedToSelf
+                    )
+                  "
                   alt="Card 1"
                   class="w-full h-full"
                 />
@@ -169,7 +205,11 @@
                 Banker: {{ seats.get("1")?.is_banker || "" }}
               </p>
 
-              <p class="absolute px-2 text-lg font-bold border rounded-full bottom-1 left-1 bg-red">Banker</p>
+              <p
+                class="absolute px-2 text-lg font-bold border rounded-full bottom-1 left-1 bg-red"
+              >
+                Banker
+              </p>
             </div>
           </div>
         </div>
@@ -253,22 +293,30 @@
 
       <div class="p-4 mt-6 bg-gray-700 border-2 rounded-lg">
         <h2 class="mb-2 text-xl text-center">
-          <span class="px-10 py-2 font-bold border bg-red">
-            Banker
-          </span>
+          <span class="px-10 py-2 font-bold border bg-red"> Banker </span>
         </h2>
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <div class="w-16 h-24">
               <img
-                :src="getImageUrl(seats.get('3')?.card1, seats.get('3')?.card1?.isRevealedToSelf )"
+                :src="
+                  getImageUrl(
+                    seats.get('3')?.card1,
+                    seats.get('3')?.card1?.isRevealedToSelf
+                  )
+                "
                 alt="Card 1"
                 class="w-full h-full"
               />
             </div>
             <div class="w-16 h-24">
               <img
-                :src="getImageUrl(seats.get('3')?.card1, seats.get('3')?.card1?.isRevealedToSelf )"
+                :src="
+                  getImageUrl(
+                    seats.get('3')?.card1,
+                    seats.get('3')?.card1?.isRevealedToSelf
+                  )
+                "
                 alt="Card 1"
                 class="w-full h-full"
               />
@@ -335,35 +383,36 @@ hasReconnectSession.value = localStorage.getItem("reconnection-token")
 const getImageUrl = (imageName, show = false) => {
   let image = imageName;
   if (!show) {
-    image = "card-back"
+    image = "card-back";
   }
-  return new URL(`../../assets/images/deck-cards/${image}.png`, import.meta.url).href;
+  return new URL(`../../assets/images/deck-cards/${image}.png`, import.meta.url)
+    .href;
 };
 
 const onJoinRoom = async () => {
   try {
-    const {data, status} = await axios.post("http://localhost:2567/api/find-or-create-room", {
-      token: token.value,
-      stakeId: stakeId.value
-    })
+    const { data, status } = await axios.post(
+      "http://localhost:2567/api/find-or-create-room",
+      {
+        token: token.value,
+        stakeId: stakeId.value,
+      }
+    );
 
-    console.log('log-data: ', data)
-    console.log('log-status: ', status)
+    console.log("log-data: ", data);
+    console.log("log-status: ", status);
 
     if ([200, 201, 204].includes(status)) {
       reservation.value = JSON.stringify(data || "{}");
       nextTick(() => {
         onConsumeReservation();
-      })
+      });
+    } else {
+      console.error("throw-error: ", data, status);
+      throw new Error("Failed to find room: ");
     }
-    else {
-      console.error('throw-error: ', data, status)
-      throw new Error("Failed to find room: ")
-    }
-
-    
   } catch (error) {
-    console.log('error: ', error)
+    console.log("error: ", error);
   }
   // createdRoom.value = await colyseusService.joinById(roomId.value, {
   //   token: token.value,
@@ -388,19 +437,27 @@ const onJoinRoom = async () => {
 };
 
 const onConsumeReservation = async () => {
-  createdRoom.value = await colyseusService.consumeSeatReservation(reservation.value);
+  createdRoom.value = await colyseusService.consumeSeatReservation(
+    reservation.value
+  );
 
-  console.log('createdRoom.value', createdRoom.value)
+  console.log("createdRoom.value", createdRoom.value);
 
-  createdRoom.value?.state.listen("seats", (seatSchema) => {
-    seatSchema.forEach(seat => {
-      console.log('seat', seat)
+  createdRoom.value?.state.players.onAdd((player, key) => {
+    console.log(player, "has been added at", key);
+
+    // add your player entity to the game world!
+
+    // detecting changes on object properties
+    player.listen("decision", (value, previousValue) => {
+      console.log(value);
+      console.log(previousValue);
     });
   });
 
-  createdRoom.value?.state.seats.onChange((value, key) => {
-    console.log(`Changed: ${key} -> ${value}`, value);
-  });
+  // createdRoom.value?.state.seats.onChange((value, key) => {
+  //   console.log(`Changed: ${key} -> ${value}`, value);
+  // });
 };
 
 const leaveRoom = async () => {
