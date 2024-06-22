@@ -3,6 +3,7 @@ import { Client } from 'colyseus.js';
 
 const page = usePage();
 
+// const client = new Client('wss://sg-sgp-1bc09a66.colyseus.cloud'); // Adjust the server URL as needed
 const client = new Client('ws://localhost:2567'); // Adjust the server URL as needed
 
 export const colyseusService = {
@@ -28,6 +29,12 @@ export const colyseusService = {
 
   async reconnect(token) {
     const room = await client.reconnect(token);
+    // const room = await client.join(roomName);
+    return room;
+  },
+
+  async consumeSeatReservation(reservation) {
+    const room = await client.consumeSeatReservation(JSON.parse(reservation));
     // const room = await client.join(roomName);
     return room;
   },

@@ -17,11 +17,11 @@
     />
 
     <InputGroup
-      label="Room Id"
+      label="Stake Id"
       type="text"
-      placeholder="Room ID"
+      placeholder="Stake ID"
       customClasses="mb-4.5"
-      v-model="roomId"
+      v-model="stakeId"
     />
 
     <PrimaryButton
@@ -32,6 +32,23 @@
     </PrimaryButton>
   </div>
 
+  <!-- <div class="mb-4.5 flex flex-col gap-6 xl:flex-row">
+    <InputGroup
+      label="Reservation"
+      type="textarea"
+      placeholder="Reservation Response"
+      customClasses="mb-4.5 w-1/2"
+      v-model="reservation"
+    />
+
+    <PrimaryButton
+      @click="onConsumeReservation"
+      class="flex justify-center w-50 p-3 mx-1 font-medium rounded-3xl bg-[orange] text-gray hover:bg-opacity-90 disabled:bg-opacity-70"
+    >
+      Consume Reservation
+    </PrimaryButton>
+  </div> -->
+
   <div class="font-sans text-white bg-gray-800">
     <div class="container p-4 mx-auto">
       <h1 class="mb-4 text-3xl font-bold text-center">Lucky 9 Game Table</h1>
@@ -39,35 +56,126 @@
       <div class="grid grid-cols-3 gap-4">
         <!-- Player Cards -->
         <div class="p-4 bg-gray-700 border-2 rounded-lg">
-          <h2 class="mb-2 text-xl font-semibold">Player 1</h2>
+          <h2 class="mb-2 text-xl font-semibold">Seat 1</h2>
           <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center">
-              <img src="card1.png" alt="Card 1" class="w-16 h-24 mr-2" />
-              <img src="card2.png" alt="Card 2" class="w-16 h-24" />
+            <div class="flex items-center gap-2">
+              <div class="w-16 h-24">
+                <img
+                  :src="getImageUrl(seats.get('1')?.player?.card1, seats.get('1')?.player?.card1?.isRevealedToSelf )"
+                  alt="Card 1"
+                  class="w-full h-full"
+                />
+              </div>
+              <div class="w-16 h-24">
+                <img
+                  :src="getImageUrl(seats.get('1')?.player?.card2, seats.get('1')?.player?.card2?.isRevealedToSelf )"
+                  alt="Card 1"
+                  class="w-full h-full"
+                />
+              </div>
+              <!-- <div class="w-16 h-24">
+                <img src="@/assets/images/deck-cards/card-back.png" alt="Card 1" class="w-full h-full" />
+              </div> -->
             </div>
             <div class="text-right">
-              <p class="text-lg font-bold">Total: 9</p>
-              <p class="text-sm">Chips: 700</p>
+              <p class="text-lg font-bold">
+                BET: {{ seats.get("1")?.bet || 0 }}
+              </p>
+              <p class="text-sm">Chips: {{ seats.get("1")?.player?.chips || 0 }}</p>
+              <p class="text-sm">
+                Declare: {{ seats.get("1")?.player?.declaration || "" }}
+              </p>
+              <p class="text-sm">Card: {{ seats.get("1")?.player?.cardTotal || 0 }}</p>
+              <p class="text-sm">
+                Lucky 9: {{ seats.get("1")?.player?.isLucky9 || 0 }}
+              </p>
+              <p class="text-sm">
+                Banker: {{ seats.get("1")?.player?.is_banker || "" }}
+              </p>
             </div>
           </div>
         </div>
 
         <div class="p-4 bg-gray-700 border-2 rounded-lg">
-          <h2 class="mb-2 text-xl font-semibold">Player 2</h2>
+          <h2 class="mb-2 text-xl font-semibold">Seat 2</h2>
           <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center">
-              <img src="card1.png" alt="Card 1" class="w-16 h-24 mr-2" />
-              <img src="card2.png" alt="Card 2" class="w-16 h-24" />
+            <div class="flex items-center gap-2">
+              <div class="w-16 h-24">
+                <img
+                  :src="getImageUrl(seats.get('2')?.card1, seats.get('2')?.card1?.isRevealedToSelf )"
+                  alt="Card 1"
+                  class="w-full h-full"
+                />
+              </div>
+              <div class="w-16 h-24">
+                <img
+                  :src="getImageUrl(seats.get('2')?.card1, seats.get('2')?.card1?.isRevealedToSelf )"
+                  alt="Card 1"
+                  class="w-full h-full"
+                />
+              </div>
             </div>
             <div class="text-right">
-              <p class="text-lg font-bold">Total: 6</p>
-              <p class="text-sm">Chips: 1200</p>
+              <p class="text-lg font-bold">
+                BET: {{ seats.get("2")?.bet || 0 }}
+              </p>
+              <p class="text-sm">Chips: {{ seats.get("2")?.chips || 0 }}</p>
+              <p class="text-sm">
+                Declare: {{ seats.get("2")?.declaration || "" }}
+              </p>
+              <p class="text-sm">Card: {{ seats.get("2")?.cardTotal || 0 }}</p>
+              <p class="text-sm">
+                Lucky 9: {{ seats.get("2")?.isLucky9 || 0 }}
+              </p>
+              <p class="text-sm">
+                Banker: {{ seats.get("2")?.is_banker || "" }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative p-4 bg-gray-700 border-2 rounded-lg border-[#cb3030f9]">
+          <h2 class="mb-2 text-xl font-semibold">Seat 3</h2>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <div class="w-16 h-24">
+                <img
+                  :src="getImageUrl(seats.get('3')?.card1, seats.get('3')?.card1?.isRevealedToSelf )"
+                  alt="Card 1"
+                  class="w-full h-full"
+                />
+              </div>
+              <div class="w-16 h-24">
+                <img
+                  :src="getImageUrl(seats.get('3')?.card1, seats.get('3')?.card1?.isRevealedToSelf )"
+                  alt="Card 1"
+                  class="w-full h-full"
+                />
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold">
+                BET: {{ seats.get("1")?.bet || 0 }}
+              </p>
+              <p class="text-sm">Chips: {{ seats.get("1")?.chips || 0 }}</p>
+              <p class="text-sm">
+                Declare: {{ seats.get("1")?.declaration || "" }}
+              </p>
+              <p class="text-sm">Card: {{ seats.get("1")?.cardTotal || 0 }}</p>
+              <p class="text-sm">
+                Lucky 9: {{ seats.get("1")?.isLucky9 || 0 }}
+              </p>
+              <p class="text-sm">
+                Banker: {{ seats.get("1")?.is_banker || "" }}
+              </p>
+
+              <p class="absolute px-2 text-lg font-bold border rounded-full bottom-1 left-1 bg-red">Banker</p>
             </div>
           </div>
         </div>
 
         <div class="p-4 bg-gray-700 border-2 rounded-lg">
-          <h2 class="mb-2 text-xl font-semibold">Player 3</h2>
+          <h2 class="mb-2 text-xl font-semibold">Seat 4</h2>
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center">
               <img src="card1.png" alt="Card 1" class="w-16 h-24 mr-2" />
@@ -79,14 +187,92 @@
             </div>
           </div>
         </div>
+
+        <div class="p-4 bg-gray-700 rounded-lg">
+          <!--  -->
+        </div>
+
+        <div class="p-4 bg-gray-700 border-2 rounded-lg">
+          <h2 class="mb-2 text-xl font-semibold">Seat 8</h2>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+              <img src="card1.png" alt="Card 1" class="w-16 h-24 mr-2" />
+              <img src="card2.png" alt="Card 2" class="w-16 h-24" />
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold">Total: 5</p>
+              <p class="text-sm">Chips: 500</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 bg-gray-700 border-2 rounded-lg">
+          <h2 class="mb-2 text-xl font-semibold">Seat 7</h2>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+              <img src="card1.png" alt="Card 1" class="w-16 h-24 mr-2" />
+              <img src="card2.png" alt="Card 2" class="w-16 h-24" />
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold">Total: 5</p>
+              <p class="text-sm">Chips: 500</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 bg-gray-700 rounded-lg">
+          <!--  -->
+        </div>
+
+        <div class="p-4 bg-gray-700 border-2 rounded-lg">
+          <h2 class="mb-2 text-xl font-semibold">Seat 5</h2>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <div class="w-16 h-24">
+                <img
+                  src="@/assets/images/deck-cards/queen_of_hearts2.png"
+                  alt="Card 1"
+                  class="w-full h-full"
+                />
+              </div>
+              <div class="w-16 h-24">
+                <img
+                  src="@/assets/images/deck-cards/card-back.png"
+                  alt="Card 1"
+                  class="w-full h-full"
+                />
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold">Total: 5</p>
+              <p class="text-sm">Chips: 500</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="p-4 mt-6 bg-gray-700 border-2 rounded-lg">
-        <h2 class="mb-2 text-xl font-semibold text-center">Banker</h2>
+        <h2 class="mb-2 text-xl text-center">
+          <span class="px-10 py-2 font-bold border bg-red">
+            Banker
+          </span>
+        </h2>
         <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center">
-            <img src="card1.png" alt="Card 1" class="w-16 h-24 mr-2" />
-            <img src="card2.png" alt="Card 2" class="w-16 h-24" />
+          <div class="flex items-center gap-2">
+            <div class="w-16 h-24">
+              <img
+                :src="getImageUrl(seats.get('3')?.card1, seats.get('3')?.card1?.isRevealedToSelf )"
+                alt="Card 1"
+                class="w-full h-full"
+              />
+            </div>
+            <div class="w-16 h-24">
+              <img
+                :src="getImageUrl(seats.get('3')?.card1, seats.get('3')?.card1?.isRevealedToSelf )"
+                alt="Card 1"
+                class="w-full h-full"
+              />
+            </div>
           </div>
           <div class="text-right">
             <p class="text-lg font-bold">Total: 8</p>
@@ -107,6 +293,7 @@ import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import PrimaryButton from "../PrimaryButton.vue";
 import { usePage } from "@inertiajs/vue3";
 import InputGroup from "../TailAdmin/Forms/InputGroup.vue";
+import axios from "axios";
 
 const page = usePage();
 const room = ref(null);
@@ -123,6 +310,9 @@ const cards = ref([]);
 const counter = ref(0);
 const token = ref("");
 const roomId = ref("");
+const seats = reactive(new Map());
+const reservation = ref("");
+const stakeId = ref("");
 
 const userUuid = computed(() => {
   return page.props.auth?.user?.uuid || "";
@@ -142,17 +332,74 @@ hasReconnectSession.value = localStorage.getItem("reconnection-token")
   ? true
   : false;
 
+const getImageUrl = (imageName, show = false) => {
+  let image = imageName;
+  if (!show) {
+    image = "card-back"
+  }
+  return new URL(`../../assets/images/deck-cards/${image}.png`, import.meta.url).href;
+};
+
 const onJoinRoom = async () => {
-  createdRoom.value = await colyseusService.joinById(roomId.value, {
-    token: token.value,
+  try {
+    const {data, status} = await axios.post("http://localhost:2567/api/find-or-create-room", {
+      token: token.value,
+      stakeId: stakeId.value
+    })
+
+    console.log('log-data: ', data)
+    console.log('log-status: ', status)
+
+    if ([200, 201, 204].includes(status)) {
+      reservation.value = JSON.stringify(data || "{}");
+      nextTick(() => {
+        onConsumeReservation();
+      })
+    }
+    else {
+      console.error('throw-error: ', data, status)
+      throw new Error("Failed to find room: ")
+    }
+
+    
+  } catch (error) {
+    console.log('error: ', error)
+  }
+  // createdRoom.value = await colyseusService.joinById(roomId.value, {
+  //   token: token.value,
+  // });
+
+  // // createdRoom.value?.state.listen("seats", (seatSchema) => {
+  // //   console.log("seats", seatSchema);
+
+  // //   seatSchema.forEach(seat => {
+  // //     console.log('seat', seat)
+  // //   });
+  // // });
+
+  // createdRoom.value?.state.seats.onChange((value, key) => {
+  //   // console.log(`Changed: ${key} -> ${value}`, value);
+  //   console.log("key", key);
+  //   console.log("value", value._);
+  //   console.log("value", value?.player?.chips);
+
+  //   seats.set(key, value);
+  // });
+};
+
+const onConsumeReservation = async () => {
+  createdRoom.value = await colyseusService.consumeSeatReservation(reservation.value);
+
+  console.log('createdRoom.value', createdRoom.value)
+
+  createdRoom.value?.state.listen("seats", (seatSchema) => {
+    seatSchema.forEach(seat => {
+      console.log('seat', seat)
+    });
   });
 
-  createdRoom.value?.state.listen("seats", (seats) => {
-    console.log("seats", seats);
-  });
-
-  createdRoom.value?.state.listen("seats", (seats) => {
-    console.log("seats", seats);
+  createdRoom.value?.state.seats.onChange((value, key) => {
+    console.log(`Changed: ${key} -> ${value}`, value);
   });
 };
 

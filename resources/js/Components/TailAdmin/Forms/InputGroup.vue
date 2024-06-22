@@ -30,7 +30,12 @@ const model = defineModel();
       v-model="model"
       :disabled="disabled"
       :step="step"
+      v-if="type !== 'textarea'"
     />
+
+    <textarea 
+      class="w-full h-50 rounded border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+    v-if="type === 'textarea'"></textarea>
 
     <slot name="error"></slot>
   </div>
